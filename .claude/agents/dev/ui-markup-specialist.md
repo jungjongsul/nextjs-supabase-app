@@ -120,30 +120,30 @@ Stage 4: Synthesis
 
 1. **search_items_in_registries**: 컴포넌트 검색
 
-   ```
-   query: "button", "card", "form" 등
-   registries: ["@shadcn"]
-   ```
+    ```
+    query: "button", "card", "form" 등
+    registries: ["@shadcn"]
+    ```
 
 2. **view_items_in_registries**: 컴포넌트 상세 정보
 
-   ```
-   items: ["@shadcn/button", "@shadcn/card"]
-   → 파일 내용, props, 구조 확인
-   ```
+    ```
+    items: ["@shadcn/button", "@shadcn/card"]
+    → 파일 내용, props, 구조 확인
+    ```
 
 3. **get_item_examples_from_registries**: 사용 예제 검색
 
-   ```
-   query: "button-demo", "card example"
-   → 실제 구현 코드와 의존성 확인
-   ```
+    ```
+    query: "button-demo", "card example"
+    → 실제 구현 코드와 의존성 확인
+    ```
 
 4. **get_add_command_for_items**: 설치 명령어 확인
-   ```
-   items: ["@shadcn/button"]
-   → CLI 명령어 생성
-   ```
+    ```
+    items: ["@shadcn/button"]
+    → CLI 명령어 생성
+    ```
 
 **사용 워크플로우:**
 
@@ -205,21 +205,21 @@ Stage 4: Synthesis
 ```tsx
 // 컴포넌트 설명 (한국어)
 interface ComponentNameProps {
-  // prop 타입 정의만
-  title?: string
-  className?: string
+    // prop 타입 정의만
+    title?: string;
+    className?: string;
 }
 
 export function ComponentName({ title, className }: ComponentNameProps) {
-  return (
-    <div className="space-y-4">
-      {/* 정적 마크업과 스타일링만 */}
-      <Button onClick={() => {}}>
-        {/* TODO: 클릭 로직 구현 필요 */}
-        Click Me
-      </Button>
-    </div>
-  )
+    return (
+        <div className="space-y-4">
+            {/* 정적 마크업과 스타일링만 */}
+            <Button onClick={() => {}}>
+                {/* TODO: 클릭 로직 구현 필요 */}
+                Click Me
+            </Button>
+        </div>
+    );
 }
 ```
 
@@ -294,29 +294,29 @@ get-library-docs(
 ```tsx
 // 통계 카드 컴포넌트
 interface StatsCardProps {
-  title: string
-  value: string
-  icon: React.ReactNode
-  trend?: 'up' | 'down'
+    title: string;
+    value: string;
+    icon: React.ReactNode;
+    trend?: "up" | "down";
 }
 
 export function StatsCard({ title, value, icon, trend }: StatsCardProps) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        {icon}
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        {trend && (
-          <p className="text-muted-foreground text-xs">
-            {/* TODO: 트렌드 표시 로직 구현 */}
-          </p>
-        )}
-      </CardContent>
-    </Card>
-  )
+    return (
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">{title}</CardTitle>
+                {icon}
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{value}</div>
+                {trend && (
+                    <p className="text-xs text-muted-foreground">
+                        {/* TODO: 트렌드 표시 로직 구현 */}
+                    </p>
+                )}
+            </CardContent>
+        </Card>
+    );
 }
 ```
 
@@ -355,36 +355,36 @@ get-library-docs(
 
 ```tsx
 export default function InvoicePage() {
-  return (
-    <div className="container mx-auto max-w-4xl px-4 py-8">
-      <div className="space-y-6">
-        {/* 헤더 섹션 */}
-        <Card>
-          <CardHeader>{/* TODO: 헤더 내용 */}</CardHeader>
-        </Card>
+    return (
+        <div className="container mx-auto max-w-4xl px-4 py-8">
+            <div className="space-y-6">
+                {/* 헤더 섹션 */}
+                <Card>
+                    <CardHeader>{/* TODO: 헤더 내용 */}</CardHeader>
+                </Card>
 
-        {/* 클라이언트 정보 */}
-        <Card>
-          <CardContent>{/* TODO: 클라이언트 정보 */}</CardContent>
-        </Card>
+                {/* 클라이언트 정보 */}
+                <Card>
+                    <CardContent>{/* TODO: 클라이언트 정보 */}</CardContent>
+                </Card>
 
-        {/* 테이블 */}
-        <Card>
-          <CardContent>{/* TODO: 항목 테이블 */}</CardContent>
-        </Card>
+                {/* 테이블 */}
+                <Card>
+                    <CardContent>{/* TODO: 항목 테이블 */}</CardContent>
+                </Card>
 
-        {/* 총액 */}
-        <Card>
-          <CardContent>{/* TODO: 총액 표시 */}</CardContent>
-        </Card>
+                {/* 총액 */}
+                <Card>
+                    <CardContent>{/* TODO: 총액 표시 */}</CardContent>
+                </Card>
 
-        {/* 액션 버튼 */}
-        <div className="flex justify-end">
-          <Button>{/* TODO: 버튼 로직 */}</Button>
+                {/* 액션 버튼 */}
+                <div className="flex justify-end">
+                    <Button>{/* TODO: 버튼 로직 */}</Button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  )
+    );
 }
 ```
 
@@ -418,8 +418,8 @@ get_item_examples_from_registries(
 
 ```tsx
 <form className="space-y-4">
-  <Input placeholder="이름" />
-  <Button type="submit">제출</Button>
+    <Input placeholder="이름" />
+    <Button type="submit">제출</Button>
 </form>
 ```
 
@@ -429,7 +429,7 @@ Tailwind를 사용한 Next.js 레이아웃 패턴:
 
 ```tsx
 <div className="container mx-auto px-4">
-  <header className="border-b py-6">{/* 헤더 마크업 */}</header>
+    <header className="border-b py-6">{/* 헤더 마크업 */}</header>
 </div>
 ```
 

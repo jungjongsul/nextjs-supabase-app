@@ -1,6 +1,6 @@
 ---
-description: 'ROADMAP.md에서 완료된 작업을 체크하고 진행 상황을 업데이트합니다'
-allowed-tools: ['Read(docs/ROADMAP.md:*)', 'Edit(docs/ROADMAP.md:*)']
+description: "ROADMAP.md에서 완료된 작업을 체크하고 진행 상황을 업데이트합니다"
+allowed-tools: ["Read(docs/ROADMAP.md:*)", "Edit(docs/ROADMAP.md:*)"]
 ---
 
 # Claude 명령어: Update Roadmap
@@ -89,9 +89,9 @@ allowed-tools: ['Read(docs/ROADMAP.md:*)', 'Edit(docs/ROADMAP.md:*)']
 
 ```markdown
 - **Task 004: 공통 컴포넌트 라이브러리 구축** - 우선순위
-  - shadcn/ui 설치 및 설정
-  - 기본 UI 컴포넌트 추가
-  - 더미 견적서 데이터 생성 유틸리티
+    - shadcn/ui 설치 및 설정
+    - 기본 UI 컴포넌트 추가
+    - 더미 견적서 데이터 생성 유틸리티
 
 **📅 최종 업데이트**: 2025-10-07
 **📊 진행 상황**: Phase 1 완료 (3/12 Tasks 완료)
@@ -101,9 +101,9 @@ allowed-tools: ['Read(docs/ROADMAP.md:*)', 'Edit(docs/ROADMAP.md:*)']
 
 ```markdown
 - **Task 004: 공통 컴포넌트 라이브러리 구축** ✅ - 완료
-  - ✅ shadcn/ui 설치 및 설정
-  - ✅ 기본 UI 컴포넌트 추가
-  - ✅ 더미 견적서 데이터 생성 유틸리티
+    - ✅ shadcn/ui 설치 및 설정
+    - ✅ 기본 UI 컴포넌트 추가
+    - ✅ 더미 견적서 데이터 생성 유틸리티
 
 **📅 최종 업데이트**: 2025-10-08
 **📊 진행 상황**: Phase 2 진행 중 (4/12 Tasks 완료)
@@ -120,16 +120,16 @@ allowed-tools: ['Read(docs/ROADMAP.md:*)', 'Edit(docs/ROADMAP.md:*)']
 ## 스마트 기능
 
 1. **자동 Phase 진행 추적**
-   - Phase 1 완료
-   - Phase 2 진행 중
-   - Phase 4 대기 중
+    - Phase 1 완료
+    - Phase 2 진행 중
+    - Phase 4 대기 중
 
 2. **완료율 계산**
-   - 전체 12개 Task 중 완료 개수 자동 카운트
-   - Phase별 완료 Task 수 추적
+    - 전체 12개 Task 중 완료 개수 자동 카운트
+    - Phase별 완료 Task 수 추적
 
 3. **날짜 자동 갱신**
-   - 오늘 날짜로 자동 업데이트 (YYYY-MM-DD)
+    - 오늘 날짜로 자동 업데이트 (YYYY-MM-DD)
 
 ## 사용 예시
 

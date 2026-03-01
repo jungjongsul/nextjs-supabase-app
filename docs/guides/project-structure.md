@@ -75,29 +75,29 @@ src/components/
 **🧩 컴포넌트 분류 규칙:**
 
 1. **ui/**: shadcn/ui 기반 재사용 가능한 기본 컴포넌트
-   - 순수 UI 컴포넌트만 포함
-   - 비즈니스 로직 없음
-   - props로 모든 동작 제어
+    - 순수 UI 컴포넌트만 포함
+    - 비즈니스 로직 없음
+    - props로 모든 동작 제어
 
 2. **layout/**: 페이지 구조를 담당하는 레이아웃 컴포넌트
-   - 전체 페이지 구조
-   - 공통 헤더/푸터
-   - 컨테이너 래퍼
+    - 전체 페이지 구조
+    - 공통 헤더/푸터
+    - 컨테이너 래퍼
 
 3. **navigation/**: 네비게이션 관련 컴포넌트
-   - 메뉴, 브레드크럼
-   - 페이지네이션
-   - 사이드바
+    - 메뉴, 브레드크럼
+    - 페이지네이션
+    - 사이드바
 
 4. **sections/**: 특정 페이지 섹션을 위한 컴포넌트
-   - 홈페이지 섹션들
-   - 랜딩 페이지 블록
-   - 마케팅 컴포넌트
+    - 홈페이지 섹션들
+    - 랜딩 페이지 블록
+    - 마케팅 컴포넌트
 
 5. **providers/**: React Context 프로바이더
-   - 전역 상태 관리
-   - 테마 관리
-   - 인증 상태
+    - 전역 상태 관리
+    - 테마 관리
+    - 인증 상태
 
 ### src/lib/ - 유틸리티 및 설정
 
@@ -175,13 +175,13 @@ user_settings/         # snake_case (금지)
 
 ```typescript
 // ✅ 경로 별칭 사용 (권장)
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { LoginForm } from '@/components/login-form'
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { LoginForm } from "@/components/login-form";
 
 // ❌ 상대 경로 사용 (금지)
-import { Button } from '../../../components/ui/button'
-import { cn } from '../../lib/utils'
+import { Button } from "../../../components/ui/button";
+import { cn } from "../../lib/utils";
 ```
 
 **📍 정의된 별칭:**
@@ -249,15 +249,15 @@ src/lib/api-utils.ts        # 새 파일 생성
 
 ```typescript
 // 1. 외부 라이브러리
-import React from 'react'
-import { NextPage } from 'next'
+import React from "react";
+import { NextPage } from "next";
 
 // 2. 내부 라이브러리 (@/ 경로)
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 // 3. 상대 경로
-import './component.css'
+import "./component.css";
 ```
 
 ### 3. Export 규칙
@@ -271,7 +271,7 @@ export default function LoginPage() {}
 
 // ❌ 혼재 사용 지양
 export function LoginForm() {}
-export default LoginForm // 같은 컴포넌트를 두 방식으로 export
+export default LoginForm; // 같은 컴포넌트를 두 방식으로 export
 ```
 
 ### 4. 파일 크기 관리
@@ -302,15 +302,15 @@ src/Components/userProfile/LoginForm.tsx
 ```typescript
 // 거대한 파일
 export function SuperMegaComponent() {
-  // 500줄 이상의 코드
+    // 500줄 이상의 코드
 }
 
 // 혼재된 import
-import Button from '@/components/ui/button' // default
-import { Card } from '@/components/ui/card' // named
+import Button from "@/components/ui/button"; // default
+import { Card } from "@/components/ui/card"; // named
 
 // 깊은 상대 경로
-import { utils } from '../../../../../lib/utils'
+import { utils } from "../../../../../lib/utils";
 ```
 
 ## ✅ 체크리스트

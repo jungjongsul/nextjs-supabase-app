@@ -35,11 +35,11 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<Supabase publishable 또는 anon 키>
 
 클라이언트를 전역 변수에 저장하지 말고 함수 호출마다 새로 생성해야 합니다 (Fluid compute 호환성).
 
-| 파일 | 용도 |
-|------|------|
+| 파일                     | 용도                                                      |
+| ------------------------ | --------------------------------------------------------- |
 | `lib/supabase/server.ts` | 서버 컴포넌트, Route Handler, Server Action용 (쿠키 기반) |
-| `lib/supabase/client.ts` | 클라이언트 컴포넌트용 (브라우저) |
-| `lib/supabase/proxy.ts` | `proxy.ts`에서 호출하는 세션 갱신 로직 |
+| `lib/supabase/client.ts` | 클라이언트 컴포넌트용 (브라우저)                          |
+| `lib/supabase/proxy.ts`  | `proxy.ts`에서 호출하는 세션 갱신 로직                    |
 
 ### 세션 관리 (proxy.ts)
 
