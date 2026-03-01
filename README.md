@@ -1,110 +1,111 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Next.js + Supabase 인증 앱
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+Next.js App Router와 Supabase를 사용한 풀스택 인증 앱입니다.
+이메일/비밀번호 로그인과 Google OAuth 소셜 로그인을 지원합니다.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## 기술 스택
 
-## Features
+- **Next.js** (App Router, Turbopack)
+- **Supabase** — 인증 및 데이터베이스
+- **TypeScript**
+- **Tailwind CSS** + **shadcn/ui**
+- **next-themes** — 다크/라이트 테마
+- **ESLint** + **Prettier** + **Husky** (lint-staged)
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-    - App Router
-    - Pages Router
-    - Proxy
-    - Client
-    - Server
-    - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-    - Environment variables automatically assigned to Vercel project
+## 시작하기
 
-## Demo
+### 1. 의존성 설치
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
-
-## Deploy to Vercel
-
-Vercel deployment will guide you through creating a Supabase account and project.
-
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
-
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
-
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
-
-## Clone and run locally
-
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
-
-2. Create a Next.js app using the Supabase Starter template npx command
-
-    ```bash
-    npx create-next-app --example with-supabase with-supabase-app
-    ```
-
-    ```bash
-    yarn create next-app --example with-supabase with-supabase-app
-    ```
-
-    ```bash
-    pnpm create next-app --example with-supabase with-supabase-app
-    ```
-
-3. Use `cd` to change into the app's directory
-
-    ```bash
-    cd with-supabase-app
-    ```
-
-4. Rename `.env.example` to `.env.local` and update the following:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
+```bash
+npm install
 ```
 
-> [!NOTE]
-> This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-> Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-> See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+### 2. 환경변수 설정
 
-Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+`.env.local` 파일을 생성하고 아래 값을 입력합니다.
 
-5. You can now run the Next.js local development server:
+```env
+NEXT_PUBLIC_SUPABASE_URL=<Supabase 프로젝트 URL>
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<Supabase publishable 또는 anon 키>
+```
 
-    ```bash
-    npm run dev
-    ```
+Supabase 대시보드 → Project Settings → API에서 확인할 수 있습니다.
 
-    The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+### 3. 개발 서버 실행
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+```bash
+npm run dev
+```
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+`http://localhost:3000`에서 확인합니다.
 
-## Feedback and issues
+## Google OAuth 설정
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+Google 소셜 로그인을 사용하려면 아래 설정이 필요합니다.
 
-## More Supabase examples
+### Google Cloud Console
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+1. [Google Cloud Console](https://console.cloud.google.com) → API 및 서비스 → 사용자 인증 정보
+2. 사용자 인증 정보 만들기 → **OAuth 클라이언트 ID** (웹 애플리케이션)
+3. 승인된 JavaScript 원본: `http://localhost:3000`
+4. 승인된 리디렉션 URI: `https://<your-project>.supabase.co/auth/v1/callback`
+5. Client ID / Client Secret 복사
+
+### Supabase 대시보드
+
+1. Authentication → Providers → **Google** 활성화
+2. Client ID, Client Secret 입력 후 저장
+3. Authentication → URL Configuration → Redirect URLs에 추가:
+    - `http://localhost:3000/auth/callback`
+
+## 라우팅 구조
+
+```
+/                          # 랜딩 페이지
+/auth/login                # 로그인
+/auth/sign-up              # 회원가입
+/auth/sign-up-success      # 회원가입 이메일 전송 완료
+/auth/forgot-password      # 비밀번호 찾기
+/auth/update-password      # 비밀번호 변경
+/auth/error                # 인증 에러
+/auth/confirm              # 이메일 OTP 확인 (Route Handler)
+/auth/callback             # OAuth PKCE 콜백 (Route Handler)
+/protected                 # 인증 필수 페이지
+```
+
+## 주요 파일
+
+```
+app/
+  auth/
+    callback/route.ts      # Google OAuth PKCE code exchange
+    confirm/route.ts       # 이메일 OTP 확인
+lib/
+  supabase/
+    server.ts              # 서버 컴포넌트용 Supabase 클라이언트
+    client.ts              # 클라이언트 컴포넌트용 Supabase 클라이언트
+    proxy.ts               # 세션 갱신 (middleware 역할)
+components/
+  icons/
+    google.tsx             # Google SVG 아이콘
+  login-form.tsx           # 로그인 폼
+  sign-up-form.tsx         # 회원가입 폼
+```
+
+## 세션 관리
+
+`middleware.ts` 대신 `lib/supabase/proxy.ts`의 `updateSession`을 사용합니다.
+모든 요청에서 세션 쿠키를 갱신하며, 미인증 요청은 `/auth/login`으로 리다이렉트됩니다.
+(`/`와 `/auth/**` 경로는 보호 대상 제외)
+
+## 개발 명령어
+
+```bash
+npm run dev          # 개발 서버 (localhost:3000)
+npm run build        # 프로덕션 빌드
+npm run start        # 프로덕션 서버
+npm run lint         # ESLint 실행
+npm run lint:fix     # ESLint 자동 수정
+npm run format       # Prettier 포맷
+npm run type-check   # TypeScript 타입 검사
+```
