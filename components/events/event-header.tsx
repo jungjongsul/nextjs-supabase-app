@@ -13,8 +13,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 // 이벤트 상태별 Badge variant 매핑
-const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline-solid"> = {
-    draft: "outline-solid",
+const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+    draft: "outline",
     open: "default",
     closed: "secondary",
     cancelled: "destructive",

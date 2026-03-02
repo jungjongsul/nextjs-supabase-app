@@ -23,10 +23,10 @@ const ROLE_LABELS: Record<string, string> = {
     member: "멤버",
 };
 
-const ROLE_BADGE_VARIANTS: Record<string, "default" | "secondary" | "outline-solid"> = {
+const ROLE_BADGE_VARIANTS: Record<string, "default" | "secondary" | "outline"> = {
     owner: "default",
     admin: "secondary",
-    member: "outline-solid",
+    member: "outline",
 };
 
 interface MemberItemProps {
@@ -75,10 +75,7 @@ export function MemberItem({ member, currentUserRole, groupId, isCurrentUser }: 
                 </div>
             </div>
             <div className="flex items-center gap-2">
-                <Badge
-                    variant={ROLE_BADGE_VARIANTS[member.role] ?? "outline-solid"}
-                    className="text-xs"
-                >
+                <Badge variant={ROLE_BADGE_VARIANTS[member.role] ?? "outline"} className="text-xs">
                     {ROLE_LABELS[member.role] ?? member.role}
                 </Badge>
                 {canRemove && (
