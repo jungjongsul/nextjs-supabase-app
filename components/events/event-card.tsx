@@ -47,7 +47,7 @@ export function EventCard({ event, groupId }: EventCardProps) {
                                         | "default"
                                         | "destructive"
                                         | "secondary"
-                                        | "outline-solid"
+                                        | "outline"
                                 }
                                 className="shrink-0 text-xs"
                             >
