@@ -15,16 +15,16 @@ interface EventTabsProps {
 export function EventTabs({ upcoming, past, groupId }: EventTabsProps) {
     return (
         <Tabs defaultValue="upcoming">
-            <TabsList className="w-full rounded-lg bg-muted p-1">
+            <TabsList className="w-full rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
                 <TabsTrigger
                     value="upcoming"
-                    className="flex-1 rounded-md data-[state=active]:bg-primary data-[state=active]:font-semibold data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
+                    className="flex-1 rounded-lg font-medium text-slate-500 data-[state=active]:!bg-indigo-500 data-[state=active]:!font-semibold data-[state=active]:!text-white data-[state=active]:shadow-md dark:text-slate-400"
                 >
                     예정 {upcoming.length > 0 && `(${upcoming.length})`}
                 </TabsTrigger>
                 <TabsTrigger
                     value="past"
-                    className="flex-1 rounded-md data-[state=active]:bg-primary data-[state=active]:font-semibold data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
+                    className="flex-1 rounded-lg font-medium text-slate-500 data-[state=active]:!bg-indigo-500 data-[state=active]:!font-semibold data-[state=active]:!text-white data-[state=active]:shadow-md dark:text-slate-400"
                 >
                     지난 {past.length > 0 && `(${past.length})`}
                 </TabsTrigger>
