@@ -13,8 +13,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 // 이벤트 상태별 Badge variant 매핑
-const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-    draft: "outline",
+const STATUS_VARIANTS: Record<string, "default" | "secondary" | "destructive" | "outline-solid"> = {
+    draft: "outline-solid",
     open: "default",
     closed: "secondary",
     cancelled: "destructive",
@@ -40,7 +40,7 @@ export function EventHeader({ event }: EventHeaderProps) {
             </div>
 
             {/* 메타 정보: 일시, 장소, 최대 인원 */}
-            <div className="flex flex-col gap-1.5 text-sm text-muted-foreground">
+            <div className="text-muted-foreground flex flex-col gap-1.5 text-sm">
                 <div className="flex items-center gap-1.5">
                     <CalendarDays size={14} />
                     <span>{dateLabel}</span>
@@ -61,8 +61,8 @@ export function EventHeader({ event }: EventHeaderProps) {
 
             {/* 공지사항/설명 */}
             {event.description && (
-                <div className="rounded-lg bg-muted/50 p-4">
-                    <p className="whitespace-pre-wrap text-sm">{event.description}</p>
+                <div className="bg-muted/50 rounded-lg p-4">
+                    <p className="text-sm whitespace-pre-wrap">{event.description}</p>
                 </div>
             )}
         </div>

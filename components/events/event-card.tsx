@@ -36,7 +36,7 @@ export function EventCard({ event, groupId }: EventCardProps) {
 
     return (
         <Link href={`/protected/groups/${groupId}/events/${event.id}`} className="block">
-            <Card className="transition-colors hover:bg-accent">
+            <Card className="hover:bg-accent transition-colors">
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between gap-2">
                         <CardTitle className="text-base">{event.title}</CardTitle>
@@ -47,7 +47,7 @@ export function EventCard({ event, groupId }: EventCardProps) {
                                         | "default"
                                         | "destructive"
                                         | "secondary"
-                                        | "outline"
+                                        | "outline-solid"
                                 }
                                 className="shrink-0 text-xs"
                             >
@@ -57,7 +57,7 @@ export function EventCard({ event, groupId }: EventCardProps) {
                         {!statusConfig && (
                             <Badge
                                 variant="outline"
-                                className="shrink-0 text-xs text-muted-foreground"
+                                className="text-muted-foreground shrink-0 text-xs"
                             >
                                 미응답
                             </Badge>
@@ -65,17 +65,17 @@ export function EventCard({ event, groupId }: EventCardProps) {
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-1">
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <div className="text-muted-foreground flex items-center gap-1 text-xs">
                         <CalendarDays size={12} />
                         <span>{dateLabel}</span>
                     </div>
                     {event.location && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <div className="text-muted-foreground flex items-center gap-1 text-xs">
                             <MapPin size={12} />
                             <span>{event.location}</span>
                         </div>
                     )}
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <div className="text-muted-foreground flex items-center gap-1 text-xs">
                         <Users size={12} />
                         <span>참석 {attendingLabel}</span>
                     </div>

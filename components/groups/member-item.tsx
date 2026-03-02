@@ -23,10 +23,10 @@ const ROLE_LABELS: Record<string, string> = {
     member: "멤버",
 };
 
-const ROLE_BADGE_VARIANTS: Record<string, "default" | "secondary" | "outline"> = {
+const ROLE_BADGE_VARIANTS: Record<string, "default" | "secondary" | "outline-solid"> = {
     owner: "default",
     admin: "secondary",
-    member: "outline",
+    member: "outline-solid",
 };
 
 interface MemberItemProps {
@@ -54,7 +54,7 @@ export function MemberItem({ member, currentUserRole, groupId, isCurrentUser }: 
     }
 
     return (
-        <div className="flex items-center justify-between rounded-lg px-2 py-2 hover:bg-muted/50">
+        <div className="hover:bg-muted/50 flex items-center justify-between rounded-lg px-2 py-2">
             <div className="flex items-center gap-3">
                 <Avatar className="h-8 w-8">
                     <AvatarImage src={member.profile.avatar_url ?? undefined} alt={displayName} />
@@ -64,18 +64,21 @@ export function MemberItem({ member, currentUserRole, groupId, isCurrentUser }: 
                     <p className="truncate text-sm font-medium">
                         {displayName}
                         {isCurrentUser && (
-                            <span className="ml-1 text-xs text-muted-foreground">(나)</span>
+                            <span className="text-muted-foreground ml-1 text-xs">(나)</span>
                         )}
                     </p>
                     {member.profile.username && member.profile.email && (
-                        <p className="truncate text-xs text-muted-foreground">
+                        <p className="text-muted-foreground truncate text-xs">
                             {member.profile.email}
                         </p>
                     )}
                 </div>
             </div>
             <div className="flex items-center gap-2">
-                <Badge variant={ROLE_BADGE_VARIANTS[member.role] ?? "outline"} className="text-xs">
+                <Badge
+                    variant={ROLE_BADGE_VARIANTS[member.role] ?? "outline-solid"}
+                    className="text-xs"
+                >
                     {ROLE_LABELS[member.role] ?? member.role}
                 </Badge>
                 {canRemove && (
@@ -84,7 +87,7 @@ export function MemberItem({ member, currentUserRole, groupId, isCurrentUser }: 
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-7 w-7 text-destructive hover:text-destructive"
+                                className="text-destructive hover:text-destructive h-7 w-7"
                             >
                                 <UserX size={14} />
                                 <span className="sr-only">추방</span>

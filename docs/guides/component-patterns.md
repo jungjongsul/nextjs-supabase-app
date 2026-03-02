@@ -176,7 +176,7 @@ export function ProductInteractions({ productId }) {
 // ✅ 명확한 Props 타입 정의
 interface ButtonProps {
     children: React.ReactNode;
-    variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+    variant?: "default" | "destructive" | "outline-solid" | "secondary" | "ghost" | "link";
     size?: "default" | "sm" | "lg" | "icon";
     disabled?: boolean;
     loading?: boolean;

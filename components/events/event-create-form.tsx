@@ -4,13 +4,20 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { createEvent } from "@/lib/actions/event-actions";
 
@@ -18,29 +25,28 @@ interface EventCreateFormProps {
     groupId: string;
 }
 
+const HOURS = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0"));
+const MINUTES = ["00", "10", "20", "30", "40", "50"];
+
 export function EventCreateForm({ groupId }: EventCreateFormProps) {
     const router = useRouter();
-    // 날짜 피커 상태: undefined이면 미선택
     const [date, setDate] = useState<Date | undefined>(undefined);
-    // 시간 입력 상태: HH:mm 형식
-    const [time, setTime] = useState<string>("");
-    // 에러 메시지 상태
+    const [hour, setHour] = useState<string>("");
+    const [minute, setMinute] = useState<string>("");
     const [error, setError] = useState<string>("");
-    // 폼 제출 중 pending 상태
     const [isPending, startTransition] = useTransition();
 
     async function handleSubmit(formData: FormData) {
-        // 날짜가 선택된 경우 event_date 합성하여 hidden input에 설정
         if (date) {
-            const timeVal = time || "00:00";
-            formData.set("event_date", `${format(date, "yyyy-MM-dd")}T${timeVal}:00`);
+            const h = hour || "00";
+            const m = minute || "00";
+            formData.set("event_date", `${format(date, "yyyy-MM-dd")}T${h}:${m}:00`);
         }
 
         setError("");
 
         startTransition(async () => {
             const result = await createEvent(groupId, formData);
-            // createEvent는 성공 시 redirect로 처리되므로 에러만 처리
             if (result && "error" in result) {
                 setError(result.error);
             }
@@ -89,7 +95,7 @@ export function EventCreateForm({ groupId }: EventCreateFormProps) {
                 />
             </div>
 
-            {/* 일시: 날짜 피커 + 시간 입력 */}
+            {/* 일시: 날짜 피커 + 시간 선택 */}
             <div className="space-y-2">
                 <Label>일시</Label>
                 <div className="flex gap-2">
@@ -111,7 +117,7 @@ export function EventCreateForm({ groupId }: EventCreateFormProps) {
                                     : "날짜 선택"}
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent className="z-[100] w-auto p-0" align="start">
                             <Calendar
                                 mode="single"
                                 selected={date}
@@ -122,15 +128,35 @@ export function EventCreateForm({ groupId }: EventCreateFormProps) {
                         </PopoverContent>
                     </Popover>
 
-                    {/* 시간 입력 */}
-                    <Input
-                        type="time"
-                        value={time}
-                        onChange={(e) => setTime(e.target.value)}
-                        className="w-32"
-                        disabled={isPending}
-                        aria-label="시간 선택"
-                    />
+                    {/* 시간 선택 (시/분 Select) */}
+                    <div className="flex items-center gap-1">
+                        <Clock className="text-muted-foreground h-4 w-4" />
+                        <Select value={hour} onValueChange={setHour} disabled={isPending}>
+                            <SelectTrigger className="w-[70px]" aria-label="시 선택">
+                                <SelectValue placeholder="시" />
+                            </SelectTrigger>
+                            <SelectContent position="popper" className="z-[100] max-h-60">
+                                {HOURS.map((h) => (
+                                    <SelectItem key={h} value={h}>
+                                        {h}시
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <span className="text-muted-foreground">:</span>
+                        <Select value={minute} onValueChange={setMinute} disabled={isPending}>
+                            <SelectTrigger className="w-[70px]" aria-label="분 선택">
+                                <SelectValue placeholder="분" />
+                            </SelectTrigger>
+                            <SelectContent position="popper" className="z-[100] max-h-60">
+                                {MINUTES.map((m) => (
+                                    <SelectItem key={m} value={m}>
+                                        {m}분
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
             </div>
 
@@ -148,7 +174,7 @@ export function EventCreateForm({ groupId }: EventCreateFormProps) {
             </div>
 
             {/* 에러 메시지 */}
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {error && <p className="text-destructive text-sm">{error}</p>}
 
             {/* 액션 버튼 */}
             <div className="flex gap-2 pt-2">

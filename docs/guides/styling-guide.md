@@ -215,8 +215,8 @@ export function ThemeToggle() {
             size="icon"
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
         >
-            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Sun className="h-4 w-4 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+            <Moon className="absolute h-4 w-4 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
             <span className="sr-only">테마 전환</span>
         </Button>
     );
@@ -408,13 +408,13 @@ import { cn } from '@/lib/utils'
 <div style={{ backgroundColor: 'red' }}>
 
 // 긴 클래스명 하드코딩
-<div className="w-full h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-bold text-2xl shadow-2xl rounded-lg border-4 border-white">
+<div className="w-full h-screen flex items-center justify-center bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-bold text-2xl shadow-2xl rounded-lg border-4 border-white">
 
 // 중복된 스타일 정의
 <div className="p-4 padding-4 pt-4 pb-4 pl-4 pr-4">
 
 // !important 남용
-<div className="!text-red-500 !bg-blue-500">
+<div className="text-red-500! bg-blue-500!">
 
 // Tailwind와 CSS 모듈 혼재
 <div className={`${styles.customClass} flex items-center`}>
