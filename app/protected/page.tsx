@@ -16,7 +16,7 @@ async function GroupList() {
                 <Users size={48} className="text-muted-foreground/40" />
                 <div>
                     <p className="font-medium">참여한 그룹이 없습니다</p>
-                    <p className="mt-1 text-sm text-muted-foreground">
+                    <p className="text-muted-foreground mt-1 text-sm">
                         그룹을 만들거나 초대 링크로 참가해보세요.
                     </p>
                 </div>
@@ -54,9 +54,9 @@ function GroupListSkeleton() {
 export default function ProtectedPage() {
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <h1 className="text-lg font-bold">내 그룹</h1>
-                <Button asChild size="sm">
+            <div className="flex items-center justify-between gap-2">
+                <h1 className="min-w-0 truncate text-lg font-bold">내 그룹</h1>
+                <Button asChild size="sm" className="shrink-0">
                     <Link href="/protected/groups/new">+ 그룹 만들기</Link>
                 </Button>
             </div>
