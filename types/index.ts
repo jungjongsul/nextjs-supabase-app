@@ -73,3 +73,7 @@ export interface Settlement {
     status: "pending" | "confirmed";
     confirmed_at: string | null;
 }
+
+export interface MemberWithProfile extends GroupMember {
+    profile: Pick<Profile, "email" | "username" | "avatar_url">;
+}
