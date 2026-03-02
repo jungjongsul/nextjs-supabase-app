@@ -15,11 +15,17 @@ interface EventTabsProps {
 export function EventTabs({ upcoming, past, groupId }: EventTabsProps) {
     return (
         <Tabs defaultValue="upcoming">
-            <TabsList className="w-full">
-                <TabsTrigger value="upcoming" className="flex-1">
+            <TabsList className="w-full rounded-lg bg-muted p-1">
+                <TabsTrigger
+                    value="upcoming"
+                    className="flex-1 rounded-md data-[state=active]:bg-primary data-[state=active]:font-semibold data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
+                >
                     예정 {upcoming.length > 0 && `(${upcoming.length})`}
                 </TabsTrigger>
-                <TabsTrigger value="past" className="flex-1">
+                <TabsTrigger
+                    value="past"
+                    className="flex-1 rounded-md data-[state=active]:bg-primary data-[state=active]:font-semibold data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
+                >
                     지난 {past.length > 0 && `(${past.length})`}
                 </TabsTrigger>
             </TabsList>
