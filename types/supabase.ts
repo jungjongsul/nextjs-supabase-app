@@ -8,6 +8,85 @@ export type Database = {
     };
     public: {
         Tables: {
+            event_participants: {
+                Row: {
+                    event_id: string;
+                    id: string;
+                    status: Database["public"]["Enums"]["participant_status"];
+                    user_id: string;
+                    waitlist_position: number | null;
+                };
+                Insert: {
+                    event_id: string;
+                    id?: string;
+                    status: Database["public"]["Enums"]["participant_status"];
+                    user_id: string;
+                    waitlist_position?: number | null;
+                };
+                Update: {
+                    event_id?: string;
+                    id?: string;
+                    status?: Database["public"]["Enums"]["participant_status"];
+                    user_id?: string;
+                    waitlist_position?: number | null;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: "event_participants_event_id_fkey";
+                        columns: ["event_id"];
+                        isOneToOne: false;
+                        referencedRelation: "events";
+                        referencedColumns: ["id"];
+                    },
+                ];
+            };
+            events: {
+                Row: {
+                    created_at: string | null;
+                    created_by: string;
+                    description: string | null;
+                    event_date: string | null;
+                    group_id: string;
+                    id: string;
+                    location: string | null;
+                    max_participants: number | null;
+                    status: Database["public"]["Enums"]["event_status"];
+                    title: string;
+                };
+                Insert: {
+                    created_at?: string | null;
+                    created_by: string;
+                    description?: string | null;
+                    event_date?: string | null;
+                    group_id: string;
+                    id?: string;
+                    location?: string | null;
+                    max_participants?: number | null;
+                    status?: Database["public"]["Enums"]["event_status"];
+                    title: string;
+                };
+                Update: {
+                    created_at?: string | null;
+                    created_by?: string;
+                    description?: string | null;
+                    event_date?: string | null;
+                    group_id?: string;
+                    id?: string;
+                    location?: string | null;
+                    max_participants?: number | null;
+                    status?: Database["public"]["Enums"]["event_status"];
+                    title?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: "events_group_id_fkey";
+                        columns: ["group_id"];
+                        isOneToOne: false;
+                        referencedRelation: "groups";
+                        referencedColumns: ["id"];
+                    },
+                ];
+            };
             group_members: {
                 Row: {
                     group_id: string;
@@ -105,7 +184,8 @@ export type Database = {
             is_group_member: { Args: { p_group_id: string }; Returns: boolean };
         };
         Enums: {
-            [_ in never]: never;
+            event_status: "draft" | "open" | "closed" | "cancelled";
+            participant_status: "attending" | "declined" | "maybe" | "waitlisted";
         };
         CompositeTypes: {
             [_ in never]: never;
@@ -232,6 +312,9 @@ export type CompositeTypes<
 
 export const Constants = {
     public: {
-        Enums: {},
+        Enums: {
+            event_status: ["draft", "open", "closed", "cancelled"],
+            participant_status: ["attending", "declined", "maybe", "waitlisted"],
+        },
     },
 } as const;
