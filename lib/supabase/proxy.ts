@@ -66,6 +66,18 @@ export async function updateSession(request: NextRequest) {
     const { data } = await supabase.auth.getClaims();
     const user = data?.claims;
 
+    // 로그인된 사용자가 루트(/) 또는 로그인/회원가입 페이지 접근 시 /protected로 리다이렉트
+    if (
+        user &&
+        (request.nextUrl.pathname === "/" ||
+            request.nextUrl.pathname === "/auth/login" ||
+            request.nextUrl.pathname === "/auth/sign-up")
+    ) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/protected";
+        return NextResponse.redirect(url);
+    }
+
     if (
         request.nextUrl.pathname !== "/" &&
         !user &&
