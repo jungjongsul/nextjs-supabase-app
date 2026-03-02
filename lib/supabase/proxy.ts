@@ -42,6 +42,27 @@ export async function updateSession(request: NextRequest) {
 
     // IMPORTANT: If you remove getClaims() and you use server-side rendering
     // with the Supabase client, your users may be randomly logged out.
+    // 어드민 경로는 별도 인증 처리 (Supabase auth 우회)
+    if (request.nextUrl.pathname.startsWith("/admin")) {
+        const isLoginPage = request.nextUrl.pathname === "/admin/login";
+        const adminToken = request.cookies.get("admin_token")?.value;
+        const isAuthenticated = adminToken === process.env.ADMIN_SESSION_TOKEN;
+
+        if (!isAuthenticated && !isLoginPage) {
+            const url = request.nextUrl.clone();
+            url.pathname = "/admin/login";
+            return NextResponse.redirect(url);
+        }
+
+        if (isAuthenticated && isLoginPage) {
+            const url = request.nextUrl.clone();
+            url.pathname = "/admin";
+            return NextResponse.redirect(url);
+        }
+
+        return supabaseResponse;
+    }
+
     const { data } = await supabase.auth.getClaims();
     const user = data?.claims;
 
@@ -53,7 +74,9 @@ export async function updateSession(request: NextRequest) {
     ) {
         // no user, potentially respond by redirecting the user to the login page
         const url = request.nextUrl.clone();
+        const redirectTo = request.nextUrl.pathname + request.nextUrl.search;
         url.pathname = "/auth/login";
+        url.searchParams.set("next", redirectTo);
         return NextResponse.redirect(url);
     }
 
