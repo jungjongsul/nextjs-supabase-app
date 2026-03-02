@@ -34,7 +34,7 @@
 | ----------- | -------------------------------- | ---------- | ------------------------------------- |
 | Phase 0     | 기반 환경 구축 및 기존 코드 정리 | ✅ 완료    | 7/8 (Supabase 타입은 Phase 1 후 진행) |
 | Phase 1     | 그룹 관리                        | ✅ 완료    | 14/14                                 |
-| Phase 2     | 이벤트 관리                      | ⏳ 대기    | 0/12                                  |
+| Phase 2     | 이벤트 관리                      | ✅ 완료    | 7/7                                   |
 | Phase 3     | 정산 관리                        | ⏳ 대기    | 0/11                                  |
 | Phase Admin | 어드민 패널                      | 🔨 진행 중 | 1/6 (플레이스홀더 완료)               |
 
@@ -57,11 +57,15 @@
 - [x] 그룹 CRUD Server Actions (createGroup, getMyGroups, joinGroup, removeMember 등)
 - [x] 대시보드, 그룹 생성, 그룹 상세, 그룹 설정, 초대 참가 페이지
 
-#### ⏳ Phase 2 — 이벤트 관리 (대기)
+#### ✅ Phase 2 — 이벤트 관리 (완료)
 
-- [ ] events / event_participants 테이블 생성 + RLS
-- [ ] 이벤트 CRUD + RSVP Server Actions
-- [ ] 이벤트 생성, 이벤트 상세/RSVP 페이지, 대기자 자동 승격
+- [x] **[T1]** 사전 작업: date-fns 설치 + shadcn/ui 컴포넌트 설치 (calendar, popover, tabs, toggle-group, select)
+- [x] **[T2]** DB 마이그레이션: events/event_participants 테이블 + RLS 정책 + 타입 재생성
+- [x] **[T3]** Server Actions 구현: `event-actions.ts` (createEvent, getGroupEvents, updateRsvp, promoteWaitlisted)
+- [x] **[T4]** 이벤트 카드/목록 컴포넌트 구현: `EventCard`, `EventList`
+- [x] **[T5]** 그룹 상세 페이지 이벤트 목록 연동 (Tabs — 예정/지난, 이벤트 생성 버튼)
+- [x] **[T6]** 이벤트 생성 페이지 구현: `EventCreateForm` (Calendar+Popover 날짜 피커)
+- [x] **[T7]** 이벤트 상세/RSVP 페이지 구현: `EventHeader`, `RsvpToggle`, `ParticipantList`
 
 #### ⏳ Phase 3 — 정산 관리 (대기)
 
@@ -345,53 +349,57 @@ Phase A  [어드민]            ██░░░░░░░░░░░░░░
 - 이벤트 생성, 이벤트 상세/RSVP, 대기자 자동 승격 구현
 - date-fns 라이브러리 도입
 
-### 사전 작업
+### 사전 작업 — `T1`
 
-- [ ] **date-fns 설치**
+- [x] **date-fns 설치**
     - 명령: `npm install date-fns`
     - 완료 기준: `package.json`에 date-fns 추가
 
-- [ ] **shadcn/ui Phase 2 컴포넌트 설치**
+- [x] **shadcn/ui Phase 2 컴포넌트 설치**
     - 설치 목록: `calendar`, `popover`, `tabs`, `toggle-group`, `select`
     - 완료 기준: `components/ui/` 하위에 해당 컴포넌트 파일 존재
 
-### DB 마이그레이션
+> ✅ T1 완료 시: 요약 체크리스트의 **[T1]** 항목을 `[x]`로 변경
 
-- [ ] **events 테이블 생성**
+### DB 마이그레이션 — `T2`
+
+- [x] **events 테이블 생성**
     - 마이그레이션: `events` 테이블 (id, group_id FK, title NOT NULL, description, location, event_date TIMESTAMPTZ, max_participants INT, status ENUM('draft','open','closed','cancelled') DEFAULT 'open', created_by FK, created_at)
     - 완료 기준: Supabase 대시보드에서 테이블 확인
 
-- [ ] **event_participants 테이블 생성**
+- [x] **event_participants 테이블 생성**
     - 마이그레이션: `event_participants` 테이블 (id, event_id FK, user_id FK, status ENUM('attending','declined','maybe','waitlisted') NOT NULL, waitlist_position INT)
     - UNIQUE 제약: `(event_id, user_id)`
     - 완료 기준: Supabase 대시보드에서 테이블 확인
 
-- [ ] **이벤트/참가자 RLS 정책 생성**
+- [x] **이벤트/참가자 RLS 정책 생성**
     - 마이그레이션:
         - `events` RLS: 그룹 멤버만 조회, owner/admin만 생성·수정·삭제
         - `event_participants` RLS: 그룹 멤버 조회, 본인 RSVP 데이터 수정
     - 완료 기준: 비멤버 접근 차단, 멤버 RSVP 변경 정상 동작
 
-- [ ] **Supabase 타입 재생성**
+- [x] **Supabase 타입 재생성**
     - 파일: `types/supabase.ts`
     - 작업: events, event_participants 테이블 추가 후 타입 재생성
     - 완료 기준: `types/supabase.ts`에 신규 테이블 타입 포함
 
-### 서버 액션 구현
+> ✅ T2 완료 시: 요약 체크리스트의 **[T2]** 항목을 `[x]`로 변경
 
-- [ ] **이벤트 생성 Server Action** (F005)
+### 서버 액션 구현 — `T3`
+
+- [x] **이벤트 생성 Server Action** (F005)
     - 파일: `lib/actions/event-actions.ts` (신규)
     - 함수: `createEvent(groupId: string, formData: FormData)`
     - 작업: 제목 필수 검증, status 기본값 'open', events INSERT, 생성된 eventId로 리다이렉트
     - 완료 기준: 이벤트 생성 후 이벤트 상세 페이지로 이동
 
-- [ ] **이벤트 목록 조회 함수** (F006)
+- [x] **이벤트 목록 조회 함수** (F006)
     - 파일: `lib/actions/event-actions.ts`
     - 함수: `getGroupEvents(groupId: string)`
     - 작업: 예정 이벤트 (event_date >= 현재) / 지난 이벤트 구분 반환
     - 완료 기준: 그룹 상세 페이지의 예정/지난 탭에 이벤트 목록 정상 표시
 
-- [ ] **RSVP 변경 Server Action** (F007, F008)
+- [x] **RSVP 변경 Server Action** (F007, F008)
     - 파일: `lib/actions/event-actions.ts`
     - 함수: `updateRsvp(eventId: string, status: 'attending' | 'declined' | 'maybe')`
     - 작업:
@@ -400,34 +408,53 @@ Phase A  [어드민]            ██░░░░░░░░░░░░░░
         3. 'attending' → 'declined' 변경 시 대기자 자동 승격 트리거 (F008)
     - 완료 기준: RSVP 변경 즉시 반영, 인원 초과 시 대기자 처리
 
-- [ ] **대기자 자동 승격 로직** (F008)
+- [x] **대기자 자동 승격 로직** (F008)
     - 파일: `lib/actions/event-actions.ts`
     - 함수: `promoteWaitlisted(eventId: string)` (내부 헬퍼)
     - 작업: waitlist_position 1순위 대기자 조회 → status를 'attending'으로 UPDATE → waitlist_position 재정렬
     - 완료 기준: 참석자 → 불참 변경 시 1순위 대기자가 자동으로 참석자로 전환
 
+> ✅ T3 완료 시: 요약 체크리스트의 **[T3]** 항목을 `[x]`로 변경
+
+### 컴포넌트 구현 — `T4`
+
+- [x] **이벤트 카드 컴포넌트**
+    - 파일: `components/events/event-card.tsx` (신규)
+    - 표시 정보: 이벤트 제목, 날짜/시간(date-fns format), 장소, 참석자 수, 내 RSVP 상태 배지
+    - 완료 기준: 날짜 포맷 정상, 상태 배지 정상 표시
+
+- [x] **이벤트 목록 컴포넌트**
+    - 파일: `components/events/event-list.tsx` (신규)
+    - 빈 상태(empty state) 메시지 처리 포함
+    - 완료 기준: 이벤트 있을 때/없을 때 모두 정상 렌더링
+
+> ✅ T4 완료 시: 요약 체크리스트의 **[T4]** 항목을 `[x]`로 변경
+
 ### 페이지 구현
 
-- [ ] **그룹 상세 페이지 이벤트 목록 연동** (F006 / P05)
+- [x] **그룹 상세 페이지 이벤트 목록 연동** (F006 / P05) — `T5`
     - 파일: `app/protected/groups/[groupId]/page.tsx` (수정)
-    - 컴포넌트: `components/events/EventList.tsx`, `components/events/EventCard.tsx` (신규)
-    - 작업: shadcn/ui Tabs 컴포넌트로 예정/지난 탭 구현, 이벤트 카드 (제목, 일시, 장소, RSVP 요약)
-    - 완료 기준: 탭 전환 시 해당 이벤트 목록 표시
+    - 컴포넌트: `components/events/event-tabs.tsx` (클라이언트, Tabs 래퍼)
+    - 작업: shadcn/ui Tabs로 예정/지난 탭 구현, owner/admin 전용 이벤트 생성 버튼 추가
+    - 완료 기준: 탭 전환 시 해당 이벤트 목록 표시, 권한별 버튼 노출 제어
+        > ✅ T5 완료 시: 요약 체크리스트의 **[T5]** 항목을 `[x]`로 변경
 
-- [ ] **이벤트 생성 페이지** (F005 / P07)
+- [x] **이벤트 생성 페이지** (F005 / P07) — `T6`
     - 파일: `app/protected/groups/[groupId]/events/new/page.tsx` (신규)
-    - 컴포넌트: `components/events/EventCreateForm.tsx` (신규)
-    - 작업: 제목(필수), 공지사항(Textarea), 장소, 일시(날짜 피커 - shadcn/ui Calendar + Popover), 인원제한(선택, 숫자 입력) 폼, Server Action 연동
-    - 완료 기준: 날짜 피커 정상 동작, 폼 제출 후 이벤트 상세로 이동
+    - 컴포넌트: `components/events/event-create-form.tsx` (신규, 클라이언트)
+    - 작업: 제목(필수), 공지사항(Textarea), 장소, 일시(shadcn/ui Calendar + Popover + time input), 인원제한(숫자 input) 폼, Server Action 연동
+    - 완료 기준: 날짜 피커 정상 동작, 폼 제출 후 이벤트 상세로 이동, owner/admin 외 접근 차단
+        > ✅ T6 완료 시: 요약 체크리스트의 **[T6]** 항목을 `[x]`로 변경
 
-- [ ] **이벤트 상세 페이지** (F006, F007, F008 / P08)
+- [x] **이벤트 상세 페이지** (F006, F007, F008 / P08) — `T7`
     - 파일: `app/protected/groups/[groupId]/events/[eventId]/page.tsx` (신규)
     - 컴포넌트:
-        - `components/events/EventHeader.tsx` — 이벤트 정보 (제목, 장소, 일시, 공지)
-        - `components/events/RsvpToggle.tsx` — RSVP 토글 버튼 (참석/불참/미결정)
-        - `components/events/ParticipantList.tsx` — 참석자/대기자/불참자 목록
-    - 작업: 이벤트 정보 표시, RSVP 토글 (클라이언트 컴포넌트), 참여자 그룹별 목록, "정산하기" 버튼 (Phase 3 연동)
-    - 완료 기준: RSVP 변경 후 참여자 목록 실시간 반영
+        - `components/events/event-header.tsx` — 이벤트 정보 (제목, 장소, 일시, 공지)
+        - `components/events/rsvp-toggle.tsx` — RSVP 토글 버튼 (참석/불참/미결정, 클라이언트)
+        - `components/events/participant-list.tsx` — 참석자/대기자/불참자 목록
+    - 작업: 이벤트 정보 표시, RSVP 토글, 참여자 그룹별 목록, "정산하기" 버튼 플레이스홀더 (Phase 3)
+    - 완료 기준: RSVP 변경 후 참여자 목록 반영, 인원 초과 시 대기 toast 알림
+        > ✅ T7 완료 시: 요약 체크리스트의 **[T7]** 항목을 `[x]`로 변경
 
 ### 테스트 전략
 
