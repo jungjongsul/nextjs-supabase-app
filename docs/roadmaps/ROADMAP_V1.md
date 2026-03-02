@@ -33,7 +33,7 @@
 | Phase       | 이름                             | 상태       | 진행률                                |
 | ----------- | -------------------------------- | ---------- | ------------------------------------- |
 | Phase 0     | 기반 환경 구축 및 기존 코드 정리 | ✅ 완료    | 7/8 (Supabase 타입은 Phase 1 후 진행) |
-| Phase 1     | 그룹 관리                        | ⏳ 대기    | 0/14                                  |
+| Phase 1     | 그룹 관리                        | ✅ 완료    | 14/14                                 |
 | Phase 2     | 이벤트 관리                      | ⏳ 대기    | 0/12                                  |
 | Phase 3     | 정산 관리                        | ⏳ 대기    | 0/11                                  |
 | Phase Admin | 어드민 패널                      | 🔨 진행 중 | 1/6 (플레이스홀더 완료)               |
@@ -49,13 +49,13 @@
 - [x] 공통 레이아웃 컴포넌트 생성 (`AppHeader`, `BottomNav`)
 - [x] 초대 링크 로그인 후 복귀 지원 (`proxy.ts`)
 - [x] shadcn/ui 추가 컴포넌트 설치 (dialog, avatar, textarea, sonner, separator, skeleton)
-- [ ] Supabase 타입 재생성 준비 → Phase 1 DB 마이그레이션 후 진행
+- [x] Supabase 타입 재생성 준비 → Phase 1 DB 마이그레이션 후 진행
 
-#### ⏳ Phase 1 — 그룹 관리 (대기)
+#### ✅ Phase 1 — 그룹 관리 (완료)
 
-- [ ] groups / group_members 테이블 생성 + RLS
-- [ ] 그룹 CRUD Server Actions (createGroup, getMyGroups, joinGroup, removeMember 등)
-- [ ] 대시보드, 그룹 생성, 그룹 상세, 그룹 설정, 초대 참가 페이지
+- [x] groups / group_members 테이블 생성 + RLS
+- [x] 그룹 CRUD Server Actions (createGroup, getMyGroups, joinGroup, removeMember 등)
+- [x] 대시보드, 그룹 생성, 그룹 상세, 그룹 설정, 초대 참가 페이지
 
 #### ⏳ Phase 2 — 이벤트 관리 (대기)
 
@@ -82,7 +82,7 @@
 
 ```
 Phase 0  [기반 작업]         ██████████████████████  ✅ 완료
-Phase 1  [그룹 관리]         ░░░░░░░░░░░░░░░░░░░░░░  2~4주
+Phase 1  [그룹 관리]         ██████████████████████  ✅ 완료
 Phase 2  [이벤트 관리]       ░░░░░░░░░░░░░░░░░░░░░░  4~7주
 Phase 3  [정산 관리]         ░░░░░░░░░░░░░░░░░░░░░░  7~10주
 Phase A  [어드민]            ██░░░░░░░░░░░░░░░░░░░░  Phase 3 이후
@@ -230,48 +230,48 @@ Phase A  [어드민]            ██░░░░░░░░░░░░░░
 
 ### DB 마이그레이션
 
-- [ ] **groups 테이블 생성**
+- [x] **groups 테이블 생성**
     - 마이그레이션: `groups` 테이블 (id, name, description, invite_code UNIQUE, created_by, created_at, updated_at)
     - 완료 기준: Supabase 대시보드에서 테이블 확인
 
-- [ ] **group_members 테이블 생성**
+- [x] **group_members 테이블 생성**
     - 마이그레이션: `group_members` 테이블 (id, group_id FK, user_id FK, role ENUM, joined_at)
     - UNIQUE 제약: `(group_id, user_id)`
     - 완료 기준: Supabase 대시보드에서 테이블 확인
 
-- [ ] **RLS 헬퍼 함수 및 정책 생성**
+- [x] **RLS 헬퍼 함수 및 정책 생성**
     - 마이그레이션:
         - `is_group_member(p_group_id UUID)` 함수 생성
         - `groups` RLS: 멤버만 조회, 인증 사용자 생성, owner/admin만 수정/삭제
         - `group_members` RLS: 그룹 멤버 조회, 인증 사용자 참가(INSERT), owner/admin만 삭제
     - 완료 기준: RLS 활성화 상태에서 멤버/비멤버 접근 제어 정상 동작
 
-- [ ] **Supabase 타입 재생성**
+- [x] **Supabase 타입 재생성**
     - 파일: `types/supabase.ts`
     - 작업: `supabase gen types typescript --local > types/supabase.ts` 실행
     - 완료 기준: `types/supabase.ts`에 groups, group_members 타입 포함
 
 ### 서버 액션 구현
 
-- [ ] **그룹 생성 Server Action** (F001)
+- [x] **그룹 생성 Server Action** (F001)
     - 파일: `lib/actions/group-actions.ts` (신규)
     - 함수: `createGroup(formData: FormData)`
     - 작업: 그룹명 필수 검증, `crypto.randomUUID()` 기반 12자리 invite_code 생성, groups INSERT, group_members에 owner로 INSERT, 생성된 groupId로 리다이렉트
     - 완료 기준: 그룹 생성 후 `/protected/groups/[groupId]`로 이동
 
-- [ ] **그룹 목록 조회 함수** (F002)
+- [x] **그룹 목록 조회 함수** (F002)
     - 파일: `lib/actions/group-actions.ts`
     - 함수: `getMyGroups(userId: string)`
     - 작업: group_members JOIN groups 쿼리, 최신 이벤트 요약 포함 (Phase 2 이후 연동)
     - 완료 기준: 현재 사용자가 속한 그룹 목록 반환
 
-- [ ] **초대 코드로 그룹 참가 Server Action** (F003)
+- [x] **초대 코드로 그룹 참가 Server Action** (F003)
     - 파일: `lib/actions/group-actions.ts`
     - 함수: `joinGroup(inviteCode: string)`
     - 작업: invite_code로 그룹 조회, 이미 멤버면 그룹 상세로 리다이렉트, 신규면 group_members에 member로 INSERT
     - 완료 기준: 초대 코드 검증 및 멤버 등록 정상 동작
 
-- [ ] **멤버 관리 Server Actions** (F004)
+- [x] **멤버 관리 Server Actions** (F004)
     - 파일: `lib/actions/group-actions.ts`
     - 함수:
         - `removeMember(groupId: string, userId: string)` — owner/admin만 실행 가능
@@ -282,37 +282,37 @@ Phase A  [어드민]            ██░░░░░░░░░░░░░░
 
 ### 페이지 구현
 
-- [ ] **대시보드 페이지 개편** (F001, F002 / P02)
+- [x] **대시보드 페이지 개편** (F001, F002 / P02)
     - 파일: `app/protected/page.tsx` (수정)
     - 컴포넌트: `components/groups/GroupCard.tsx` (신규)
     - 작업: 서버 컴포넌트로 그룹 목록 조회, 그룹 카드 목록 렌더링, "그룹 만들기" 버튼
     - UI 요소: 그룹 카드 (그룹명, 멤버 수, 최신 이벤트 요약), 빈 상태(empty state) 처리
     - 완료 기준: 로그인 후 그룹 목록 표시, 그룹 없을 때 생성 유도 메시지 표시
 
-- [ ] **그룹 생성 페이지** (F001 / P03)
+- [x] **그룹 생성 페이지** (F001 / P03)
     - 파일: `app/protected/groups/new/page.tsx` (신규)
     - 컴포넌트: `components/groups/GroupCreateForm.tsx` (신규)
     - 작업: 그룹명(필수), 설명(선택) 입력 폼, Server Action 연동, 취소 버튼
     - 완료 기준: 폼 제출 후 생성된 그룹 상세 페이지로 이동
 
-- [ ] **그룹 레이아웃 생성**
+- [x] **그룹 레이아웃 생성**
     - 파일: `app/protected/groups/[groupId]/layout.tsx` (신규)
     - 작업: 그룹 ID 기반 그룹 정보 로드, 멤버십 검증 (비멤버 접근 차단)
     - 완료 기준: 비멤버가 그룹 URL 직접 접근 시 대시보드로 리다이렉트
 
-- [ ] **초대 참가 페이지** (F003 / P04)
+- [x] **초대 참가 페이지** (F003 / P04)
     - 파일: `app/protected/groups/join/[inviteCode]/page.tsx` (신규)
     - 컴포넌트: `components/groups/JoinGroupCard.tsx` (신규)
     - 작업: 초대 코드로 그룹 정보 조회 및 미리보기, "참가하기" 버튼 (Server Action 호출), 이미 멤버면 그룹 상세로 자동 리다이렉트
     - 완료 기준: 유효한 초대 코드 → 그룹 정보 표시 → 참가 확인, 유효하지 않은 코드 → 에러 메시지
 
-- [ ] **그룹 상세 페이지** (F003, F006 / P05)
+- [x] **그룹 상세 페이지** (F003, F006 / P05)
     - 파일: `app/protected/groups/[groupId]/page.tsx` (신규)
     - 컴포넌트: `components/groups/GroupHeader.tsx`, `components/groups/InviteLinkButton.tsx` (신규)
     - 작업: 그룹 정보 헤더, 초대 링크 복사 버튼 (클립보드 API), 이벤트 목록 영역 (Phase 2에서 채움), 이벤트 생성 버튼 (owner/admin만 표시)
     - 완료 기준: 그룹 정보 및 초대 링크 복사 기능 정상 동작
 
-- [ ] **그룹 설정 페이지** (F004 / P06)
+- [x] **그룹 설정 페이지** (F004 / P06)
     - 파일: `app/protected/groups/[groupId]/settings/page.tsx` (신규)
     - 컴포넌트: `components/groups/MemberList.tsx`, `components/groups/MemberItem.tsx` (신규)
     - 작업: 그룹명/설명 수정 폼, 멤버 목록 (역할 배지 표시), 멤버 추방 버튼 (owner/admin만), 초대 코드 재생성, 그룹 삭제 버튼 (owner만, 확인 다이얼로그)
