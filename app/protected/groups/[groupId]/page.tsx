@@ -47,7 +47,11 @@ async function GroupContent({ params }: { params: Promise<{ groupId: string }> }
                 <div className="flex items-center justify-between">
                     <h2 className="text-sm font-semibold text-muted-foreground">이벤트</h2>
                     {canCreateEvent && (
-                        <Button asChild size="sm" variant="outline">
+                        <Button
+                            asChild
+                            size="sm"
+                            className="bg-indigo-500 text-white hover:bg-indigo-600"
+                        >
                             <Link href={`/protected/groups/${groupId}/events/new`}>
                                 <Plus size={14} className="mr-1" />
                                 이벤트 만들기
