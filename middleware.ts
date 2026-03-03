@@ -33,14 +33,19 @@ export async function middleware(request: NextRequest) {
         data: { user },
     } = await supabase.auth.getUser();
 
-    // Redirect unauthenticated users to login page
-    if (
-        !user &&
-        !request.nextUrl.pathname.startsWith("/auth") &&
-        request.nextUrl.pathname.startsWith("/protected")
-    ) {
+    const pathname = request.nextUrl.pathname;
+
+    // 로그인하지 않은 사용자가 /protected에 접근하면 로그인 페이지로 리다이렉트
+    if (!user && pathname.startsWith("/protected")) {
         const url = request.nextUrl.clone();
         url.pathname = "/auth/login";
+        return NextResponse.redirect(url);
+    }
+
+    // 이미 로그인한 사용자가 /, /auth/login, /auth/sign-up에 접근하면 /protected로 리다이렉트
+    if (user && (pathname === "/" || pathname === "/auth/login" || pathname === "/auth/sign-up")) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/protected";
         return NextResponse.redirect(url);
     }
 
