@@ -135,16 +135,16 @@ export async function getCurrentUserRole(
 ): Promise<{ role: string } | { error: string }> {
     const supabase = await createClient();
 
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return { error: "로그인이 필요합니다." };
+    // getClaims()는 JWT 쿠키를 읽어 인증 서버 왕복 없이 userId 추출 (빠름)
+    const { data: claimsData } = await supabase.auth.getClaims();
+    const userId = claimsData?.claims?.sub;
+    if (!userId) return { error: "로그인이 필요합니다." };
 
     const { data, error } = await supabase
         .from("group_members")
         .select("role")
         .eq("group_id", groupId)
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .single();
 
     if (error) return { error: error.message };
