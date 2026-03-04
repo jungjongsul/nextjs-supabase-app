@@ -82,39 +82,32 @@ export async function getMyGroups(): Promise<GroupWithDetails[] | { error: strin
     } = await supabase.auth.getUser();
     if (!user) return { error: "로그인이 필요합니다." };
 
+    // group_members(count)를 중첩 쿼리로 포함하여 DB 왕복을 2회 → 1회로 줄임
     const { data, error } = await supabase
         .from("group_members")
-        .select("role, groups(*)")
+        .select("role, groups(*, group_members(count))")
         .eq("user_id", user.id)
         .order("joined_at", { ascending: false });
 
     if (error) return { error: error.message };
 
-    const groupIds = data
-        .map((item) => (item.groups as unknown as Group | null)?.id)
-        .filter((id): id is string => id !== null);
-
-    const memberCounts: Record<string, number> = {};
-    if (groupIds.length > 0) {
-        const { data: countData } = await supabase
-            .from("group_members")
-            .select("group_id")
-            .in("group_id", groupIds);
-
-        (countData ?? []).forEach((row) => {
-            memberCounts[row.group_id] = (memberCounts[row.group_id] ?? 0) + 1;
-        });
-    }
-
-    const groups: GroupWithDetails[] = data
+    const groups = data
         .map((item) => {
-            const group = item.groups as unknown as Group | null;
+            const group = item.groups as unknown as
+                | (Group & { group_members: Array<{ count: number }> })
+                | null;
             if (!group) return null;
+
+            // Supabase 중첩 count 결과는 [{ count: N }] 형태
+            const memberCount = group.group_members?.[0]?.count ?? 0;
+
+            const { group_members: _omit, ...groupData } = group;
+
             return {
-                ...group,
+                ...groupData,
                 userRole: item.role,
-                memberCount: memberCounts[group.id] ?? 0,
-            };
+                memberCount,
+            } satisfies GroupWithDetails;
         })
         .filter((g): g is GroupWithDetails => g !== null);
 

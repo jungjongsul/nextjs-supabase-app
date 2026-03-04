@@ -45,7 +45,7 @@ async function GroupContent({ params }: { params: Promise<{ groupId: string }> }
             </div>
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-sm font-semibold text-muted-foreground">이벤트</h2>
+                    <h2 className="text-muted-foreground text-sm font-semibold">이벤트</h2>
                     {canCreateEvent && (
                         <Button
                             asChild
@@ -68,12 +68,38 @@ async function GroupContent({ params }: { params: Promise<{ groupId: string }> }
 function GroupPageSkeleton() {
     return (
         <div className="space-y-6">
+            {/* 그룹 헤더 영역: 이름 + 설명 + 배지 */}
             <div className="space-y-2">
-                <Skeleton className="h-7 w-48" />
-                <Skeleton className="h-4 w-64" />
+                <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1 space-y-2">
+                        <Skeleton className="h-7 w-40" />
+                        <Skeleton className="h-4 w-64" />
+                    </div>
+                    <Skeleton className="h-9 w-9 shrink-0 rounded-md" />
+                </div>
+                <div className="flex items-center gap-2">
+                    <Skeleton className="h-5 w-12 rounded-full" />
+                    <Skeleton className="h-5 w-14 rounded-full" />
+                </div>
             </div>
-            <Skeleton className="h-9 w-32" />
-            <Skeleton className="h-32 w-full" />
+
+            {/* 초대 링크 버튼 영역 */}
+            <Skeleton className="h-9 w-36" />
+
+            {/* 이벤트 섹션 헤더 */}
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <Skeleton className="h-4 w-12" />
+                    <Skeleton className="h-8 w-28" />
+                </div>
+
+                {/* 이벤트 탭 + 카드 목록 */}
+                <Skeleton className="h-10 w-full rounded-xl" />
+                <div className="space-y-3">
+                    <Skeleton className="h-28 w-full rounded-lg" />
+                    <Skeleton className="h-28 w-full rounded-lg" />
+                </div>
+            </div>
         </div>
     );
 }
