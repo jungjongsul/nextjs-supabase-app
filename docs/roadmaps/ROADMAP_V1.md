@@ -30,13 +30,13 @@
 
 ## 전체 진행 현황
 
-| Phase       | 이름                             | 상태       | 진행률                                |
-| ----------- | -------------------------------- | ---------- | ------------------------------------- |
-| Phase 0     | 기반 환경 구축 및 기존 코드 정리 | ✅ 완료    | 7/8 (Supabase 타입은 Phase 1 후 진행) |
-| Phase 1     | 그룹 관리                        | ✅ 완료    | 14/14                                 |
-| Phase 2     | 이벤트 관리                      | ✅ 완료    | 7/7                                   |
-| Phase 3     | 정산 관리                        | ⏳ 대기    | 0/11                                  |
-| Phase Admin | 어드민 패널                      | 🔨 진행 중 | 1/6 (플레이스홀더 완료)               |
+| Phase       | 이름                             | 상태    | 진행률 |
+| ----------- | -------------------------------- | ------- | ------ |
+| Phase 0     | 기반 환경 구축 및 기존 코드 정리 | ✅ 완료 | 8/8    |
+| Phase 1     | 그룹 관리                        | ✅ 완료 | 14/14  |
+| Phase 2     | 이벤트 관리                      | ✅ 완료 | 7/7    |
+| Phase 3     | 정산 관리                        | ✅ 완료 | 11/11  |
+| Phase Admin | 어드민 패널                      | ✅ 완료 | 6/6    |
 
 ### 체크리스트 요약
 
@@ -67,18 +67,18 @@
 - [x] **[T6]** 이벤트 생성 페이지 구현: `EventCreateForm` (Calendar+Popover 날짜 피커)
 - [x] **[T7]** 이벤트 상세/RSVP 페이지 구현: `EventHeader`, `RsvpToggle`, `ParticipantList`
 
-#### ⏳ Phase 3 — 정산 관리 (대기)
+#### ✅ Phase 3 — 정산 관리 (완료)
 
-- [ ] expenses / expense_participants / settlements 테이블 생성 + RLS
-- [ ] 정산 알고리즘 (`lib/settlement-calculator.ts`)
-- [ ] 지출 등록, 정산 관리 페이지
+- [x] expenses / expense_participants / settlements 테이블 생성 + RLS
+- [x] 정산 알고리즘 (`lib/settlement-calculator.ts`)
+- [x] 지출 등록, 정산 관리 페이지
 
-#### 🔨 Phase Admin — 어드민 패널 (진행 중)
+#### ✅ Phase Admin — 어드민 패널 (완료)
 
 - [x] 어드민 레이아웃 및 플레이스홀더 페이지 생성 (`/admin`, `/admin/users`, `/admin/groups`, `/admin/events`)
-- [ ] `profiles.is_admin` 컬럼 추가 + RLS
-- [ ] 어드민 인증 미들웨어 (`proxy.ts` 수정)
-- [ ] 사용자 / 그룹 / 이벤트 전체 조회 페이지 구현
+- [x] `profiles.is_admin` 컬럼 추가 + RLS
+- [x] 어드민 인증 미들웨어 (`proxy.ts` 수정)
+- [x] 사용자 / 그룹 / 이벤트 전체 조회 페이지 구현
 
 ---
 
@@ -87,9 +87,9 @@
 ```
 Phase 0  [기반 작업]         ██████████████████████  ✅ 완료
 Phase 1  [그룹 관리]         ██████████████████████  ✅ 완료
-Phase 2  [이벤트 관리]       ░░░░░░░░░░░░░░░░░░░░░░  4~7주
-Phase 3  [정산 관리]         ░░░░░░░░░░░░░░░░░░░░░░  7~10주
-Phase A  [어드민]            ██░░░░░░░░░░░░░░░░░░░░  Phase 3 이후
+Phase 2  [이벤트 관리]       ██████████████████████  ✅ 완료
+Phase 3  [정산 관리]         ██████████████████████  ✅ 완료
+Phase A  [어드민]            ██████████████████████  ✅ 완료
 ```
 
 ---
@@ -188,7 +188,7 @@ Phase A  [어드민]            ██░░░░░░░░░░░░░░
 
     - 완료 기준: `tsc --noEmit` 에러 없음
 
-- [ ] **Supabase 타입 재생성 준비**
+- [x] **Supabase 타입 재생성 준비**
     - 파일: `types/supabase.ts`
     - 작업: Phase 1 DB 마이그레이션 후 `supabase gen types typescript` 로 재생성 예정으로 표시
 
@@ -324,9 +324,9 @@ Phase A  [어드민]            ██░░░░░░░░░░░░░░
 
 ### 테스트 전략
 
-- [ ] `createGroup` Server Action 유효성 검증 테스트 (빈 그룹명 거부)
-- [ ] `joinGroup` 중복 참가 처리 테스트 (이미 멤버인 경우)
-- [ ] RLS 정책 검증: 비멤버 그룹 데이터 접근 차단 확인
+- [x] `createGroup` Server Action 유효성 검증 테스트 (빈 그룹명 거부)
+- [x] `joinGroup` 중복 참가 처리 테스트 (이미 멤버인 경우)
+- [x] RLS 정책 검증: 비멤버 그룹 데이터 접근 차단 확인
 
 ### 위험 요소 및 대응
 
@@ -458,9 +458,9 @@ Phase A  [어드민]            ██░░░░░░░░░░░░░░
 
 ### 테스트 전략
 
-- [ ] `updateRsvp` 인원 초과 시 waitlisted 처리 테스트
-- [ ] `promoteWaitlisted` 대기자 순서 정렬 정확성 테스트
-- [ ] 이벤트 생성 날짜 유효성 검증 (과거 날짜 거부 여부) 테스트
+- [x] `updateRsvp` 인원 초과 시 waitlisted 처리 테스트
+- [x] `promoteWaitlisted` 대기자 순서 정렬 정확성 테스트
+- [x] 이벤트 생성 날짜 유효성 검증 (과거 날짜 거부 여부) 테스트
 
 ### 위험 요소 및 대응
 
@@ -485,40 +485,40 @@ Phase A  [어드민]            ██░░░░░░░░░░░░░░
 
 ### 사전 작업
 
-- [ ] **shadcn/ui Phase 3 컴포넌트 설치**
+- [x] **shadcn/ui Phase 3 컴포넌트 설치**
     - 설치 목록: `sheet`, `scroll-area`
     - 완료 기준: `components/ui/` 하위에 해당 컴포넌트 파일 존재
 
 ### DB 마이그레이션
 
-- [ ] **expenses 테이블 생성**
+- [x] **expenses 테이블 생성**
     - 마이그레이션: `expenses` 테이블 (id, event_id FK, paid_by FK, title NOT NULL, amount INT NOT NULL, created_by FK, created_at)
     - 완료 기준: Supabase 대시보드에서 테이블 확인
 
-- [ ] **expense_participants 테이블 생성**
+- [x] **expense_participants 테이블 생성**
     - 마이그레이션: `expense_participants` 테이블 (id, expense_id FK, user_id FK)
     - UNIQUE 제약: `(expense_id, user_id)`
     - 완료 기준: Supabase 대시보드에서 테이블 확인
 
-- [ ] **settlements 테이블 생성**
+- [x] **settlements 테이블 생성**
     - 마이그레이션: `settlements` 테이블 (id, event_id FK, from_user_id FK, to_user_id FK, amount INT NOT NULL, status ENUM('pending','confirmed') DEFAULT 'pending', confirmed_at TIMESTAMPTZ)
     - 완료 기준: Supabase 대시보드에서 테이블 확인
 
-- [ ] **정산 관련 RLS 정책 생성**
+- [x] **정산 관련 RLS 정책 생성**
     - 마이그레이션:
         - `expenses` RLS: 그룹 멤버만 조회, 이벤트 참석자만 생성, 생성자/owner/admin 삭제
         - `expense_participants` RLS: 그룹 멤버만 조회
         - `settlements` RLS: 관련 사용자(from/to)만 조회, 수취인(to_user_id)만 confirmed 상태 변경
     - 완료 기준: 권한 없는 사용자 송금 확인 불가 확인
 
-- [ ] **Supabase 타입 재생성**
+- [x] **Supabase 타입 재생성**
     - 파일: `types/supabase.ts`
     - 작업: 3개 신규 테이블 추가 후 타입 재생성
     - 완료 기준: `types/supabase.ts`에 신규 테이블 타입 포함
 
 ### 정산 알고리즘 구현
 
-- [ ] **정산 계산기 순수 함수 구현** (F010)
+- [x] **정산 계산기 순수 함수 구현** (F010)
     - 파일: `lib/settlement-calculator.ts` (신규)
     - 함수:
         - `calculateIndividualShares(expenses, participants)` — 각 지출의 개인 부담금 계산 (floor, 나머지는 paid_by 귀속)
@@ -528,13 +528,13 @@ Phase A  [어드민]            ██░░░░░░░░░░░░░░
 
 ### 서버 액션 구현
 
-- [ ] **지출 등록 Server Action** (F009)
+- [x] **지출 등록 Server Action** (F009)
     - 파일: `lib/actions/settle-actions.ts` (신규)
     - 함수: `createExpense(eventId: string, formData: FormData)`
     - 작업: 항목명·금액 필수 검증, expenses INSERT, expense_participants 다중 INSERT (선택된 참여자)
     - 완료 기준: 지출 등록 후 정산 관리 페이지로 이동, 참여자 데이터 정확히 저장
 
-- [ ] **송금 완료 확인 Server Action** (F011)
+- [x] **송금 완료 확인 Server Action** (F011)
     - 파일: `lib/actions/settle-actions.ts`
     - 함수: `confirmSettlement(settlementId: string)`
     - 작업: 현재 사용자가 to_user_id인지 검증, status를 'confirmed'로 UPDATE, confirmed_at 기록
@@ -542,26 +542,26 @@ Phase A  [어드민]            ██░░░░░░░░░░░░░░
 
 ### 페이지 구현
 
-- [ ] **정산 관리 페이지** (F010, F011 / P09)
+- [x] **정산 관리 페이지** (F010, F011 / P09)
     - 파일: `app/protected/groups/[groupId]/events/[eventId]/settle/page.tsx` (신규)
     - 컴포넌트:
-        - `components/settle/ExpenseList.tsx` — 등록된 지출 목록
-        - `components/settle/SettlementResult.tsx` — 자동 계산된 송금 결과 (클라이언트 컴포넌트)
-        - `components/settle/SettlementItem.tsx` — 개별 송금 항목 (확인 버튼 포함)
+        - `components/settle/expense-list.tsx` — 등록된 지출 목록
+        - `components/settle/settlement-result.tsx` — 자동 계산된 송금 결과 (클라이언트 컴포넌트)
+        - `components/settle/settlement-item.tsx` — 개별 송금 항목 (확인 버튼 포함)
     - 작업: 서버 컴포넌트로 지출 데이터 조회, 클라이언트 컴포넌트에서 정산 알고리즘 실행, "받았어요" 버튼으로 Server Action 호출
     - 완료 기준: 지출 목록 표시, 송금 결과 계산 정확성 확인, "받았어요" 후 상태 변경
 
-- [ ] **지출 등록 페이지** (F009 / P10)
+- [x] **지출 등록 페이지** (F009 / P10)
     - 파일: `app/protected/groups/[groupId]/events/[eventId]/settle/new/page.tsx` (신규)
-    - 컴포넌트: `components/settle/ExpenseCreateForm.tsx` (신규)
+    - 컴포넌트: `components/settle/expense-create-form.tsx` (신규)
     - 작업: 항목명(필수), 금액(필수, 원 단위 정수), 실제 지불자 선택(Select), 참여자 체크박스 다중 선택, Server Action 연동
     - 완료 기준: 전체 이벤트 참석자 목록 체크박스로 표시, 폼 제출 후 정산 관리 페이지로 이동
 
 ### 테스트 전략
 
-- [ ] `calculateIndividualShares` 나머지 처리 정확성 테스트 (10만/3명 = 33333, 33333, 33334)
-- [ ] `minimizeTransactions` 최소 거래 수 알고리즘 검증 (다양한 시나리오)
-- [ ] `confirmSettlement` 비수취인 접근 시 에러 반환 테스트
+- [x] `calculateIndividualShares` 나머지 처리 정확성 테스트 (10만/3명 = 33333, 33333, 33334)
+- [x] `minimizeTransactions` 최소 거래 수 알고리즘 검증 (다양한 시나리오)
+- [x] `confirmSettlement` 비수취인 접근 시 에러 반환 테스트
 
 ### 위험 요소 및 대응
 
@@ -595,29 +595,29 @@ Phase A  [어드민]            ██░░░░░░░░░░░░░░
 
 #### 인증 및 권한 (미구현)
 
-- [ ] **슈퍼유저 role 컬럼 추가**
+- [x] **슈퍼유저 role 컬럼 추가**
     - 파일: `types/supabase.ts` (재생성)
     - 작업: `profiles` 테이블에 `is_admin` boolean 컬럼 추가, RLS 정책 설정
     - 완료 기준: 어드민 계정으로만 `/admin` 접근 가능
 
-- [ ] **어드민 인증 미들웨어 적용**
+- [x] **어드민 인증 미들웨어 적용**
     - 파일: `lib/supabase/proxy.ts` (수정)
-    - 작업: `/admin` 경로는 `is_admin = true`인 사용자만 접근, 미인증 시 `/auth/login`으로 리다이렉트
+    - 작업: `/admin` 경로는 `ADMIN_SESSION_TOKEN` 쿠키 기반 인증, 미인증 시 `/admin/login`으로 리다이렉트
     - 완료 기준: 일반 사용자 `/admin` 접근 차단
 
-#### 데이터 조회 페이지 (미구현)
+#### 데이터 조회 페이지
 
-- [ ] **사용자 관리 페이지**
+- [x] **사용자 관리 페이지**
     - 파일: `app/admin/users/page.tsx` (수정)
     - 작업: 전체 사용자 목록, 이메일·가입일·그룹 수 표시
     - 완료 기준: 전체 사용자 데이터 테이블 렌더링
 
-- [ ] **그룹 관리 페이지**
+- [x] **그룹 관리 페이지**
     - 파일: `app/admin/groups/page.tsx` (수정)
     - 작업: 전체 그룹 목록, 그룹명·멤버 수·이벤트 수 표시
     - 완료 기준: 전체 그룹 데이터 테이블 렌더링
 
-- [ ] **이벤트 관리 페이지**
+- [x] **이벤트 관리 페이지**
     - 파일: `app/admin/events/page.tsx` (수정)
     - 작업: 전체 이벤트 목록, 제목·날짜·RSVP 현황 표시
     - 완료 기준: 전체 이벤트 데이터 테이블 렌더링

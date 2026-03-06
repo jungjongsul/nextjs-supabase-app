@@ -87,6 +87,70 @@ export type Database = {
                     },
                 ];
             };
+            expense_participants: {
+                Row: {
+                    expense_id: string;
+                    id: string;
+                    user_id: string;
+                };
+                Insert: {
+                    expense_id: string;
+                    id?: string;
+                    user_id: string;
+                };
+                Update: {
+                    expense_id?: string;
+                    id?: string;
+                    user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: "expense_participants_expense_id_fkey";
+                        columns: ["expense_id"];
+                        isOneToOne: false;
+                        referencedRelation: "expenses";
+                        referencedColumns: ["id"];
+                    },
+                ];
+            };
+            expenses: {
+                Row: {
+                    amount: number;
+                    created_at: string;
+                    created_by: string;
+                    event_id: string;
+                    id: string;
+                    paid_by: string;
+                    title: string;
+                };
+                Insert: {
+                    amount: number;
+                    created_at?: string;
+                    created_by: string;
+                    event_id: string;
+                    id?: string;
+                    paid_by: string;
+                    title: string;
+                };
+                Update: {
+                    amount?: number;
+                    created_at?: string;
+                    created_by?: string;
+                    event_id?: string;
+                    id?: string;
+                    paid_by?: string;
+                    title?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: "expenses_event_id_fkey";
+                        columns: ["expense_id"];
+                        isOneToOne: false;
+                        referencedRelation: "events";
+                        referencedColumns: ["id"];
+                    },
+                ];
+            };
             group_members: {
                 Row: {
                     group_id: string;
@@ -155,6 +219,7 @@ export type Database = {
                     created_at: string;
                     email: string | null;
                     id: string;
+                    is_admin: boolean;
                     updated_at: string;
                     username: string | null;
                 };
@@ -163,6 +228,7 @@ export type Database = {
                     created_at?: string;
                     email?: string | null;
                     id: string;
+                    is_admin?: boolean;
                     updated_at?: string;
                     username?: string | null;
                 };
@@ -171,10 +237,49 @@ export type Database = {
                     created_at?: string;
                     email?: string | null;
                     id?: string;
+                    is_admin?: boolean;
                     updated_at?: string;
                     username?: string | null;
                 };
                 Relationships: [];
+            };
+            settlements: {
+                Row: {
+                    amount: number;
+                    confirmed_at: string | null;
+                    event_id: string;
+                    from_user_id: string;
+                    id: string;
+                    status: string;
+                    to_user_id: string;
+                };
+                Insert: {
+                    amount: number;
+                    confirmed_at?: string | null;
+                    event_id: string;
+                    from_user_id: string;
+                    id?: string;
+                    status?: string;
+                    to_user_id: string;
+                };
+                Update: {
+                    amount?: number;
+                    confirmed_at?: string | null;
+                    event_id?: string;
+                    from_user_id?: string;
+                    id?: string;
+                    status?: string;
+                    to_user_id?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: "settlements_event_id_fkey";
+                        columns: ["event_id"];
+                        isOneToOne: false;
+                        referencedRelation: "events";
+                        referencedColumns: ["id"];
+                    },
+                ];
             };
         };
         Views: {

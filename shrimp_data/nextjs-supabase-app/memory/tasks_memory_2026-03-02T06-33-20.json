@@ -1,0 +1,260 @@
+{
+    "tasks": [
+        {
+            "id": "edf0b3e7-94e9-4616-ae5b-3c3f1924d2ed",
+            "name": "튜토리얼 UI 코드 제거",
+            "description": "스타터킷의 튜토리얼 관련 컴포넌트와 import를 모두 제거합니다.\n\n삭제 대상 파일:\n- components/tutorial/ 디렉토리 전체 (5개 파일)\n- components/hero.tsx\n- components/deploy-button.tsx\n- components/env-var-warning.tsx\n- components/supabase-logo.tsx\n- components/next-logo.tsx\n\n수정 대상 파일:\n- app/page.tsx: 위 컴포넌트 import 제거, 임시 플레이스홀더로 교체\n- app/protected/layout.tsx: DeployButton, EnvVarWarning import 제거\n- app/protected/page.tsx: FetchDataSteps import 제거, 임시 텍스트 플레이스홀더로 교체\n\n주의: lib/utils.ts의 hasEnvVars는 유지 (다른 곳에서 사용 가능)",
+            "notes": "app/page.tsx에서 import 제거 후 빈 화면이 되어도 됨. 랜딩페이지 개편은 다음 태스크에서 수행.",
+            "status": "completed",
+            "dependencies": [],
+            "createdAt": "2026-03-01T22:39:56.494Z",
+            "updatedAt": "2026-03-01T22:42:29.786Z",
+            "relatedFiles": [
+                {
+                    "path": "components/tutorial/",
+                    "type": "TO_MODIFY",
+                    "description": "삭제 대상 튜토리얼 컴포넌트 디렉토리"
+                },
+                {
+                    "path": "components/hero.tsx",
+                    "type": "TO_MODIFY",
+                    "description": "삭제 대상"
+                },
+                {
+                    "path": "components/deploy-button.tsx",
+                    "type": "TO_MODIFY",
+                    "description": "삭제 대상"
+                },
+                {
+                    "path": "components/env-var-warning.tsx",
+                    "type": "TO_MODIFY",
+                    "description": "삭제 대상"
+                },
+                {
+                    "path": "app/page.tsx",
+                    "type": "TO_MODIFY",
+                    "description": "튜토리얼 import 제거"
+                },
+                {
+                    "path": "app/protected/layout.tsx",
+                    "type": "TO_MODIFY",
+                    "description": "DeployButton, EnvVarWarning 제거"
+                },
+                {
+                    "path": "app/protected/page.tsx",
+                    "type": "TO_MODIFY",
+                    "description": "FetchDataSteps 제거"
+                }
+            ],
+            "implementationGuide": "1. Bash로 components/tutorial/ 삭제: rm -rf components/tutorial/\n2. Bash로 개별 파일 삭제: rm components/hero.tsx components/deploy-button.tsx components/env-var-warning.tsx components/supabase-logo.tsx components/next-logo.tsx\n3. app/page.tsx 수정: 모든 삭제된 컴포넌트 import 제거, 임시 div 플레이스홀더로 교체 (빌드 오류 방지)\n4. app/protected/layout.tsx 수정: DeployButton, EnvVarWarning import 및 JSX 제거\n5. app/protected/page.tsx 수정: FetchDataSteps, InfoIcon import 제거, 임시 '대시보드 (Phase 1에서 구현)' 텍스트로 교체\n6. npm run build로 빌드 오류 없음 확인",
+            "verificationCriteria": "npm run build가 오류 없이 성공. npm run type-check 통과. components/tutorial/ 디렉토리 미존재 확인.",
+            "analysisResult": "Phase 0 기반 환경 구축: Next.js 15 + Supabase 스타터킷에서 튜토리얼 코드 제거, MVP 랜딩페이지 개편, 도메인 타입 시스템 구축, 모바일 퍼스트 레이아웃 컴포넌트 생성, Protected 레이아웃 개편, proxy.ts 초대링크 복귀 지원, shadcn/ui 추가 컴포넌트 설치를 수행합니다. 코딩 컨벤션: 파일명 kebab-case, 컴포넌트명 PascalCase, import @/ 별칭, 들여쓰기 4칸.",
+            "summary": "튜토리얼 관련 파일 모두 제거 완료. components/tutorial/ 디렉토리, hero.tsx, deploy-button.tsx, env-var-warning.tsx, supabase-logo.tsx, next-logo.tsx 삭제. app/page.tsx, app/protected/layout.tsx, app/protected/page.tsx에서 모든 튜토리얼 import 제거 및 임시 플레이스홀더로 교체. tsc --noEmit 오류 없음 확인. npm run build는 Google Fonts 네트워크 차단 문제로 실패하나 코드 오류가 아닌 환경 문제임.",
+            "completedAt": "2026-03-01T22:42:29.784Z"
+        },
+        {
+            "id": "1c575079-bc4f-4f23-8fa1-cf88ee37d59f",
+            "name": "shadcn/ui 추가 컴포넌트 설치",
+            "description": "Phase 1에서 필요한 shadcn/ui 컴포넌트를 사전에 설치합니다.\n\n설치 목록: dialog, avatar, textarea, sonner, separator, skeleton\n\n설치 후 components/ui/ 디렉토리에 해당 파일이 생성되어야 합니다.",
+            "status": "completed",
+            "dependencies": [],
+            "createdAt": "2026-03-01T22:39:56.494Z",
+            "updatedAt": "2026-03-02T02:58:40.555Z",
+            "relatedFiles": [
+                {
+                    "path": "components/ui/",
+                    "type": "TO_MODIFY",
+                    "description": "shadcn/ui 컴포넌트 설치 위치"
+                },
+                {
+                    "path": "components.json",
+                    "type": "REFERENCE",
+                    "description": "shadcn/ui 설정 파일 (style: new-york, rsc: true)"
+                }
+            ],
+            "implementationGuide": "1. npx shadcn@latest add dialog avatar textarea sonner separator skeleton 실행\n2. 설치 중 프롬프트가 나오면 y로 확인\n3. ls components/ui/ 로 설치된 파일 확인\n4. npm run build로 빌드 오류 없음 확인",
+            "verificationCriteria": "components/ui/ 에 dialog.tsx, avatar.tsx, textarea.tsx, sonner.tsx (또는 toaster.tsx), separator.tsx, skeleton.tsx 파일 존재. npm run build 성공.",
+            "analysisResult": "Phase 0 기반 환경 구축: Next.js 15 + Supabase 스타터킷에서 튜토리얼 코드 제거, MVP 랜딩페이지 개편, 도메인 타입 시스템 구축, 모바일 퍼스트 레이아웃 컴포넌트 생성, Protected 레이아웃 개편, proxy.ts 초대링크 복귀 지원, shadcn/ui 추가 컴포넌트 설치를 수행합니다. 코딩 컨벤션: 파일명 kebab-case, 컴포넌트명 PascalCase, import @/ 별칭, 들여쓰기 4칸.",
+            "summary": "shadcn/ui 컴포넌트 6개(dialog, avatar, textarea, sonner, separator, skeleton) 모두 components/ui/ 에 설치 완료",
+            "completedAt": "2026-03-02T02:58:40.554Z"
+        },
+        {
+            "id": "84966bd6-9765-428b-9455-8aef09c3263e",
+            "name": "도메인 타입 정의 파일 생성",
+            "description": "PRD 데이터 모델 기반으로 앱 도메인 TypeScript 타입을 types/index.ts에 정의합니다.\n\n정의할 인터페이스 (PRD 섹션 6 참조):\n- Profile: id, email, username, avatar_url, created_at, updated_at\n- Group: id, name, description, invite_code, created_by, created_at, updated_at\n- GroupMember: id, group_id, user_id, role('owner'|'admin'|'member'), joined_at\n- Event: id, group_id, title, description, location, event_date, max_participants, status('draft'|'open'|'closed'|'cancelled'), created_by, created_at\n- EventParticipant: id, event_id, user_id, status('attending'|'declined'|'maybe'|'waitlisted'), waitlist_position\n- Expense: id, event_id, paid_by, title, amount, created_by, created_at\n- ExpenseParticipant: id, expense_id, user_id\n- Settlement: id, event_id, from_user_id, to_user_id, amount, status('pending'|'confirmed'), confirmed_at",
+            "status": "completed",
+            "dependencies": [],
+            "createdAt": "2026-03-01T22:39:56.494Z",
+            "updatedAt": "2026-03-02T02:58:43.170Z",
+            "relatedFiles": [
+                {
+                    "path": "types/index.ts",
+                    "type": "CREATE",
+                    "description": "앱 도메인 타입 정의 파일 (신규)"
+                },
+                {
+                    "path": "types/supabase.ts",
+                    "type": "REFERENCE",
+                    "description": "기존 Supabase 자동생성 타입 (profiles 테이블 포함)"
+                },
+                {
+                    "path": "docs/prds/PRD.md",
+                    "type": "REFERENCE",
+                    "description": "데이터 모델 명세 (섹션 6)",
+                    "lineStart": 225,
+                    "lineEnd": 320
+                }
+            ],
+            "implementationGuide": "types/index.ts 신규 파일 생성:\n- 각 테이블에 대한 interface 정의\n- nullable 필드는 string | null, number | null 형태\n- 날짜 필드는 string 타입 (ISO 8601)\n- ENUM 필드는 유니온 타입으로 정의\n- Profile 타입도 포함 (supabase.ts의 Row 타입과 별개로 앱 레이어 타입 정의)",
+            "verificationCriteria": "npm run type-check (tsc --noEmit) 오류 없음. types/index.ts에 8개 interface 정의 확인.",
+            "analysisResult": "Phase 0 기반 환경 구축: Next.js 15 + Supabase 스타터킷에서 튜토리얼 코드 제거, MVP 랜딩페이지 개편, 도메인 타입 시스템 구축, 모바일 퍼스트 레이아웃 컴포넌트 생성, Protected 레이아웃 개편, proxy.ts 초대링크 복귀 지원, shadcn/ui 추가 컴포넌트 설치를 수행합니다. 코딩 컨벤션: 파일명 kebab-case, 컴포넌트명 PascalCase, import @/ 별칭, 들여쓰기 4칸.",
+            "summary": "types/index.ts에 Profile, Group, GroupMember, Event, EventParticipant, Expense, ExpenseParticipant, Settlement 8개 인터페이스 정의 완료. nullable 필드 및 ENUM 유니온 타입 적용",
+            "completedAt": "2026-03-02T02:58:43.169Z"
+        },
+        {
+            "id": "a8aa2304-9336-4e1d-be3f-f0b239c8bef0",
+            "name": "공통 레이아웃 컴포넌트 생성",
+            "description": "앱 전체에서 사용할 공통 헤더와 모바일 하단 네비게이션 컴포넌트를 생성합니다.\n\n생성 파일:\n1. components/layout/app-header.tsx (서버 컴포넌트)\n   - 좌측: 앱 로고 (텍스트 '모임' 또는 링크)\n   - 우측: AuthButton(재사용) + ThemeSwitcher(재사용)\n   - 인증 상태에 따라 로그인/로그아웃 표시\n\n2. components/layout/bottom-nav.tsx (클라이언트 컴포넌트)\n   - usePathname으로 현재 경로 감지\n   - 고정 하단 탭 네비게이션 (모바일 전용: md:hidden)\n   - Phase 0에서는 홈(/protected) 탭만 활성화\n   - 아이콘: lucide-react 사용",
+            "notes": "컴포넌트 파일명은 kebab-case (app-header.tsx, bottom-nav.tsx). 컴포넌트 함수명은 PascalCase (AppHeader, BottomNav).",
+            "status": "completed",
+            "dependencies": [
+                {
+                    "taskId": "edf0b3e7-94e9-4616-ae5b-3c3f1924d2ed"
+                }
+            ],
+            "createdAt": "2026-03-01T22:39:56.494Z",
+            "updatedAt": "2026-03-02T02:58:52.542Z",
+            "relatedFiles": [
+                {
+                    "path": "components/layout/app-header.tsx",
+                    "type": "CREATE",
+                    "description": "앱 공통 헤더 (서버 컴포넌트)"
+                },
+                {
+                    "path": "components/layout/bottom-nav.tsx",
+                    "type": "CREATE",
+                    "description": "모바일 하단 탭 네비게이션 (클라이언트 컴포넌트)"
+                },
+                {
+                    "path": "components/auth-button.tsx",
+                    "type": "REFERENCE",
+                    "description": "재사용: getClaims() 기반 인증 상태 표시"
+                },
+                {
+                    "path": "components/theme-switcher.tsx",
+                    "type": "REFERENCE",
+                    "description": "재사용: 다크/라이트 모드 전환"
+                }
+            ],
+            "implementationGuide": "1. mkdir -p components/layout 디렉토리 생성\n2. components/layout/app-header.tsx 생성:\n   - 서버 컴포넌트 (use client 없음)\n   - import { AuthButton } from '@/components/auth-button'\n   - import { ThemeSwitcher } from '@/components/theme-switcher'\n   - Link href='/' 로 홈 이동\n3. components/layout/bottom-nav.tsx 생성:\n   - 'use client' 선언\n   - import { usePathname } from 'next/navigation'\n   - import { Home } from 'lucide-react'\n   - className='fixed bottom-0 left-0 right-0 z-50 border-t bg-background md:hidden'\n   - 내부 탭: 홈 (/protected)",
+            "verificationCriteria": "components/layout/app-header.tsx, bottom-nav.tsx 파일 존재. npm run type-check 통과.",
+            "analysisResult": "Phase 0 기반 환경 구축: Next.js 15 + Supabase 스타터킷에서 튜토리얼 코드 제거, MVP 랜딩페이지 개편, 도메인 타입 시스템 구축, 모바일 퍼스트 레이아웃 컴포넌트 생성, Protected 레이아웃 개편, proxy.ts 초대링크 복귀 지원, shadcn/ui 추가 컴포넌트 설치를 수행합니다. 코딩 컨벤션: 파일명 kebab-case, 컴포넌트명 PascalCase, import @/ 별칭, 들여쓰기 4칸.",
+            "summary": "components/layout/app-header.tsx(서버 컴포넌트, AuthButton+ThemeSwitcher 포함)와 components/layout/bottom-nav.tsx(클라이언트, 모바일 전용 하단 탭 네비) 생성 완료",
+            "completedAt": "2026-03-02T02:58:52.541Z"
+        },
+        {
+            "id": "9cd0534c-b1dd-4763-b824-35eabd19be3f",
+            "name": "Protected 레이아웃 모바일 퍼스트로 개편",
+            "description": "app/protected/layout.tsx를 모바일 퍼스트 레이아웃으로 전면 개편합니다.\n\n변경 내용:\n- 기존 데스크탑 중심 nav + footer 구조 제거\n- AppHeader 컴포넌트로 헤더 교체\n- BottomNav 컴포넌트 추가 (모바일 하단)\n- 메인 콘텐츠 영역: pb-20 (하단 네비 공간), max-w-2xl mx-auto p-4\n\n완료 기준: 모바일(375px)에서 하단 네비 표시, 데스크탑(1280px)에서 하단 네비 숨김",
+            "status": "completed",
+            "dependencies": [
+                {
+                    "taskId": "a8aa2304-9336-4e1d-be3f-f0b239c8bef0"
+                }
+            ],
+            "createdAt": "2026-03-01T22:39:56.494Z",
+            "updatedAt": "2026-03-02T03:02:28.165Z",
+            "relatedFiles": [
+                {
+                    "path": "app/protected/layout.tsx",
+                    "type": "TO_MODIFY",
+                    "description": "모바일 퍼스트 레이아웃으로 전면 교체"
+                },
+                {
+                    "path": "components/layout/app-header.tsx",
+                    "type": "DEPENDENCY",
+                    "description": "AppHeader 컴포넌트 (태스크 4에서 생성)"
+                },
+                {
+                    "path": "components/layout/bottom-nav.tsx",
+                    "type": "DEPENDENCY",
+                    "description": "BottomNav 컴포넌트 (태스크 4에서 생성)"
+                }
+            ],
+            "implementationGuide": "app/protected/layout.tsx 수정:\n1. 기존 DeployButton, EnvVarWarning, AuthButton, ThemeSwitcher import 모두 제거\n2. AppHeader, BottomNav import 추가\n3. 레이아웃 구조:\n   <div className='min-h-screen flex flex-col'>\n     <AppHeader />\n     <main className='flex-1 max-w-2xl w-full mx-auto px-4 py-6 pb-24'>\n       {children}\n     </main>\n     <BottomNav />\n   </div>",
+            "verificationCriteria": "npm run build 성공. 모바일 375px에서 하단 네비 표시 확인. 데스크탑에서 하단 네비 숨김(md:hidden) 확인.",
+            "analysisResult": "Phase 0 기반 환경 구축: Next.js 15 + Supabase 스타터킷에서 튜토리얼 코드 제거, MVP 랜딩페이지 개편, 도메인 타입 시스템 구축, 모바일 퍼스트 레이아웃 컴포넌트 생성, Protected 레이아웃 개편, proxy.ts 초대링크 복귀 지원, shadcn/ui 추가 컴포넌트 설치를 수행합니다. 코딩 컨벤션: 파일명 kebab-case, 컴포넌트명 PascalCase, import @/ 별칭, 들여쓰기 4칸.",
+            "summary": "app/protected/layout.tsx를 AppHeader + BottomNav 기반 모바일 퍼스트 레이아웃으로 개편 완료. AuthButton을 Suspense로 감싸 cacheComponents 호환성 해결. npm run build 성공",
+            "completedAt": "2026-03-02T03:02:28.164Z"
+        },
+        {
+            "id": "79b555b7-b437-480d-9f1c-190fa55b9cbf",
+            "name": "랜딩 페이지 MVP 소개로 개편",
+            "description": "app/page.tsx를 MVP 앱 소개 랜딩 페이지로 재작성합니다.\n\n구성:\n- 상단 헤더: 앱 로고 + 로그인/회원가입 버튼\n- 히어로 섹션: 앱 제목 '모임 이벤트 관리', 부제목, CTA 버튼 (시작하기 → /auth/sign-up, 로그인 → /auth/login)\n- 기능 소개 3개 카드: 그룹 관리, RSVP, 정산\n- 푸터: 심플 텍스트\n\n완료 기준: 미인증 사용자가 랜딩 페이지에서 로그인/회원가입 페이지로 이동 가능",
+            "status": "completed",
+            "dependencies": [
+                {
+                    "taskId": "edf0b3e7-94e9-4616-ae5b-3c3f1924d2ed"
+                }
+            ],
+            "createdAt": "2026-03-01T22:39:56.494Z",
+            "updatedAt": "2026-03-02T02:58:46.893Z",
+            "relatedFiles": [
+                {
+                    "path": "app/page.tsx",
+                    "type": "TO_MODIFY",
+                    "description": "MVP 랜딩페이지로 완전 재작성"
+                },
+                {
+                    "path": "components/ui/button.tsx",
+                    "type": "DEPENDENCY",
+                    "description": "Button 컴포넌트"
+                },
+                {
+                    "path": "components/ui/card.tsx",
+                    "type": "DEPENDENCY",
+                    "description": "Card 컴포넌트"
+                }
+            ],
+            "implementationGuide": "app/page.tsx 완전 재작성 (서버 컴포넌트 유지):\n1. Link, Button 컴포넌트만 import\n2. ThemeSwitcher import (선택적)\n3. 헤더: flex justify-between, 앱명 + 로그인/회원가입 버튼\n4. 히어로: text-center, 제목(text-4xl font-bold), 부제목(text-muted-foreground), CTA 버튼 2개\n5. 기능 카드: grid grid-cols-1 md:grid-cols-3 gap-6, Card 컴포넌트 사용\n6. 기능 항목: 그룹 관리(Users 아이콘), RSVP 관리(CalendarCheck 아이콘), 정산 자동화(Calculator 아이콘)",
+            "verificationCriteria": "/ 경로 접근 시 MVP 소개 랜딩페이지 표시. 로그인 버튼 클릭 시 /auth/login 이동. 회원가입 버튼 클릭 시 /auth/sign-up 이동. npm run build 성공.",
+            "analysisResult": "Phase 0 기반 환경 구축: Next.js 15 + Supabase 스타터킷에서 튜토리얼 코드 제거, MVP 랜딩페이지 개편, 도메인 타입 시스템 구축, 모바일 퍼스트 레이아웃 컴포넌트 생성, Protected 레이아웃 개편, proxy.ts 초대링크 복귀 지원, shadcn/ui 추가 컴포넌트 설치를 수행합니다. 코딩 컨벤션: 파일명 kebab-case, 컴포넌트명 PascalCase, import @/ 별칭, 들여쓰기 4칸.",
+            "summary": "app/page.tsx를 MVP 랜딩페이지로 재작성. 헤더(로고+버튼), 히어로(제목+CTA), 기능 카드 3개(그룹관리/RSVP/정산), 푸터 구성 완료",
+            "completedAt": "2026-03-02T02:58:46.892Z"
+        },
+        {
+            "id": "9fc31c85-8231-4702-8347-d3d5151febdd",
+            "name": "proxy.ts 초대링크 로그인 후 복귀 지원",
+            "description": "lib/supabase/proxy.ts에서 미인증 사용자를 로그인 페이지로 리다이렉트 시, 원래 접근하려던 URL을 next 쿼리 파라미터로 보존합니다.\n\n구현 방법:\n- 미인증 리다이렉트 시: url.pathname + url.search를 next 파라미터로 인코딩하여 /auth/login?next=... 형태로 리다이렉트\n- 이를 통해 로그인 성공 후 /protected/groups/join/[inviteCode]로 자동 복귀 가능\n\n주의: createServerClient() 생성과 getClaims() 사이에 코드 추가 절대 금지",
+            "notes": "proxy.ts에서 리다이렉트하는 부분만 수정. createServerClient() 바로 아래 getClaims() 호출 코드에는 절대 손대지 말 것.",
+            "status": "completed",
+            "dependencies": [],
+            "createdAt": "2026-03-01T22:39:56.494Z",
+            "updatedAt": "2026-03-02T02:58:50.402Z",
+            "relatedFiles": [
+                {
+                    "path": "lib/supabase/proxy.ts",
+                    "type": "TO_MODIFY",
+                    "description": "미인증 리다이렉트 시 next 파라미터 보존",
+                    "lineStart": 48,
+                    "lineEnd": 58
+                },
+                {
+                    "path": "components/login-form.tsx",
+                    "type": "TO_MODIFY",
+                    "description": "next 쿼리파라미터 읽어서 로그인 성공 후 해당 경로로 이동"
+                },
+                {
+                    "path": "app/auth/login/page.tsx",
+                    "type": "REFERENCE",
+                    "description": "로그인 페이지 (searchParams 전달 필요 여부 확인)"
+                }
+            ],
+            "implementationGuide": "lib/supabase/proxy.ts의 리다이렉트 부분 수정:\n현재 코드:\n  const url = request.nextUrl.clone();\n  url.pathname = '/auth/login';\n  return NextResponse.redirect(url);\n\n수정 후:\n  const url = request.nextUrl.clone();\n  const redirectTo = request.nextUrl.pathname + request.nextUrl.search;\n  url.pathname = '/auth/login';\n  url.searchParams.set('next', redirectTo);\n  return NextResponse.redirect(url);\n\n로그인 후 복귀는 로그인 폼(components/login-form.tsx)에서 searchParams.next를 읽어 router.push(next) 하도록 추가 수정 필요 (이 태스크에 포함).",
+            "verificationCriteria": "미인증 상태에서 /protected/groups/join/TEST 접근 시 /auth/login?next=%2Fprotected%2Fgroups%2Fjoin%2FTEST로 리다이렉트. 로그인 성공 후 /protected/groups/join/TEST로 자동 이동.",
+            "analysisResult": "Phase 0 기반 환경 구축: Next.js 15 + Supabase 스타터킷에서 튜토리얼 코드 제거, MVP 랜딩페이지 개편, 도메인 타입 시스템 구축, 모바일 퍼스트 레이아웃 컴포넌트 생성, Protected 레이아웃 개편, proxy.ts 초대링크 복귀 지원, shadcn/ui 추가 컴포넌트 설치를 수행합니다. 코딩 컨벤션: 파일명 kebab-case, 컴포넌트명 PascalCase, import @/ 별칭, 들여쓰기 4칸.",
+            "summary": "proxy.ts에서 미인증 리다이렉트 시 next 쿼리파라미터 보존 구현. login-form.tsx에서 next 파라미터 수신 후 로그인 성공 시 해당 경로로 이동하도록 수정. app/auth/login/page.tsx에서 searchParams 전달 완료",
+            "completedAt": "2026-03-02T02:58:50.402Z"
+        }
+    ]
+}

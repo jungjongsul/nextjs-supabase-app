@@ -1,6 +1,12 @@
 {
     "permissions": {
-        "allow": ["mcp__supabase", "mcp__supabase__list_migrations", "Bash", "Skill(git:commit)"]
+        "allow": [
+            "mcp__supabase",
+            "mcp__supabase__list_migrations",
+            "Bash",
+            "Skill(git:commit)",
+            "Skill(docs:update-roadmap)"
+        ]
     },
     "enableAllProjectMcpServers": true,
     "enabledMcpjsonServers": ["supabase"]

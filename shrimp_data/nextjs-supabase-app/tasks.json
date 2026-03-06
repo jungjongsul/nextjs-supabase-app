@@ -1,0 +1,328 @@
+{
+    "tasks": [
+        {
+            "id": "a0793523-8617-4aa3-8480-703aa5738004",
+            "name": "사전 작업: date-fns 및 shadcn/ui 컴포넌트 설치",
+            "description": "Phase 2에 필요한 패키지를 설치한다.\n\n1. date-fns 설치: npm install date-fns\n2. shadcn/ui 컴포넌트 설치: calendar, popover, tabs, toggle-group, select\n   - npx shadcn@latest add calendar popover tabs toggle-group select\n3. package.json에 date-fns 추가 확인\n4. components/ui/ 하위에 calendar.tsx, popover.tsx, tabs.tsx, toggle-group.tsx, select.tsx 파일 존재 확인\n5. ROADMAP_V1.md의 '사전 작업' 체크박스 2개 체크",
+            "status": "completed",
+            "dependencies": [],
+            "createdAt": "2026-03-02T06:56:34.489Z",
+            "updatedAt": "2026-03-02T07:06:41.275Z",
+            "relatedFiles": [
+                {
+                    "path": "package.json",
+                    "type": "TO_MODIFY",
+                    "description": "date-fns 의존성 추가"
+                },
+                {
+                    "path": "components/ui/calendar.tsx",
+                    "type": "CREATE",
+                    "description": "shadcn/ui calendar 컴포넌트"
+                },
+                {
+                    "path": "components/ui/popover.tsx",
+                    "type": "CREATE",
+                    "description": "shadcn/ui popover 컴포넌트"
+                },
+                {
+                    "path": "components/ui/tabs.tsx",
+                    "type": "CREATE",
+                    "description": "shadcn/ui tabs 컴포넌트"
+                },
+                {
+                    "path": "components/ui/toggle-group.tsx",
+                    "type": "CREATE",
+                    "description": "shadcn/ui toggle-group 컴포넌트"
+                },
+                {
+                    "path": "components/ui/select.tsx",
+                    "type": "CREATE",
+                    "description": "shadcn/ui select 컴포넌트"
+                },
+                {
+                    "path": "docs/roadmaps/ROADMAP_V1.md",
+                    "type": "TO_MODIFY",
+                    "description": "사전 작업 체크박스 업데이트"
+                }
+            ],
+            "implementationGuide": "npm install date-fns 실행 후 shadcn add 명령으로 컴포넌트 설치.\nshadcn/ui MCP 도구(get_add_command_for_items) 활용 권장.\n설치 후 components/ui/ 하위 파일 존재 여부 확인.",
+            "verificationCriteria": "1. package.json에 date-fns 포함\n2. components/ui/에 calendar.tsx, popover.tsx, tabs.tsx, toggle-group.tsx, select.tsx 파일 존재\n3. ROADMAP_V1.md 상세 섹션 '사전 작업 — T1'의 두 체크박스를 [x]로 변경\n4. ROADMAP_V1.md 요약 섹션의 **[T1]** 항목을 [x]로 변경\n5. 전체 진행 현황 Phase 2 진행률 업데이트 (1/7)",
+            "analysisResult": "Phase 2 이벤트 관리 구현. 기존 group-actions.ts 패턴(createClient, 에러 반환, Suspense+Skeleton)을 그대로 따르며, is_group_member() RLS 함수를 재사용한다. 파일명은 kebab-case, 컴포넌트는 PascalCase, 4칸 들여쓰기, TypeScript strict 모드를 유지한다. 태스크 완료 후 docs/roadmaps/ROADMAP_V1.md의 해당 체크박스를 업데이트한다.",
+            "notes": "완료 후 ROADMAP_V1.md에서 반드시 두 곳을 체크할 것:\n- 요약 섹션: `- [x] **[T1]** 사전 작업: date-fns 설치 + shadcn/ui ...`\n- 상세 섹션: '사전 작업 — T1' 내 두 체크박스",
+            "summary": "date-fns npm 설치 완료, shadcn/ui calendar/popover/tabs/toggle-group/select 5개 컴포넌트 모두 components/ui/ 하위에 존재 확인. ROADMAP_V1.md 요약 및 상세 섹션 체크박스 업데이트 완료.",
+            "completedAt": "2026-03-02T07:06:41.274Z"
+        },
+        {
+            "id": "7cc82f4e-1eb3-4734-bab9-50c613606f06",
+            "name": "DB 마이그레이션: events 및 event_participants 테이블 + RLS + 타입 재생성",
+            "description": "Supabase MCP를 사용해 4개의 마이그레이션을 순서대로 적용한다.\n\n마이그레이션 1: create_events_table\n- CREATE TYPE event_status AS ENUM('draft','open','closed','cancelled');\n- CREATE TABLE events (id UUID DEFAULT gen_random_uuid() PRIMARY KEY, group_id UUID NOT NULL REFERENCES groups(id) ON DELETE CASCADE, title TEXT NOT NULL, description TEXT, location TEXT, event_date TIMESTAMPTZ, max_participants INT, status event_status NOT NULL DEFAULT 'open', created_by UUID NOT NULL REFERENCES auth.users(id), created_at TIMESTAMPTZ DEFAULT now());\n- CREATE INDEX idx_events_group_id ON events(group_id);\n- ALTER TABLE events ENABLE ROW LEVEL SECURITY;\n\n마이그레이션 2: create_event_participants_table\n- CREATE TYPE participant_status AS ENUM('attending','declined','maybe','waitlisted');\n- CREATE TABLE event_participants (id UUID DEFAULT gen_random_uuid() PRIMARY KEY, event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE, user_id UUID NOT NULL REFERENCES auth.users(id), status participant_status NOT NULL, waitlist_position INT, UNIQUE(event_id, user_id));\n- CREATE INDEX idx_event_participants_event_id ON event_participants(event_id);\n- ALTER TABLE event_participants ENABLE ROW LEVEL SECURITY;\n\n마이그레이션 3: create_events_rls_policies\n- events SELECT: auth.uid() IS NOT NULL AND is_group_member(group_id)\n- events INSERT: auth.uid() IS NOT NULL AND EXISTS(SELECT 1 FROM group_members WHERE group_id = events.group_id AND user_id = auth.uid() AND role IN ('owner','admin'))\n- events UPDATE/DELETE: auth.uid() IS NOT NULL AND EXISTS(SELECT 1 FROM group_members WHERE group_id = events.group_id AND user_id = auth.uid() AND role IN ('owner','admin'))\n- event_participants SELECT: auth.uid() IS NOT NULL AND EXISTS(SELECT 1 FROM events e WHERE e.id = event_participants.event_id AND is_group_member(e.group_id))\n- event_participants INSERT/UPDATE: auth.uid() = user_id\n- event_participants DELETE: auth.uid() = user_id\n\n마이그레이션 4: supabase gen types typescript로 types/supabase.ts 재생성\n(Supabase MCP generate_typescript_types 도구 사용)\n\n5. ROADMAP_V1.md DB 마이그레이션 체크박스 4개 체크",
+            "status": "completed",
+            "dependencies": [
+                {
+                    "taskId": "a0793523-8617-4aa3-8480-703aa5738004"
+                }
+            ],
+            "createdAt": "2026-03-02T06:56:34.489Z",
+            "updatedAt": "2026-03-02T07:09:24.859Z",
+            "relatedFiles": [
+                {
+                    "path": "types/supabase.ts",
+                    "type": "TO_MODIFY",
+                    "description": "Supabase 타입 재생성"
+                },
+                {
+                    "path": "docs/roadmaps/ROADMAP_V1.md",
+                    "type": "TO_MODIFY",
+                    "description": "DB 마이그레이션 체크박스 4개 업데이트"
+                }
+            ],
+            "implementationGuide": "supabase MCP의 apply_migration 도구로 각 마이그레이션 적용.\ngenerate_typescript_types 도구로 types/supabase.ts 재생성 후 파일에 저장.",
+            "verificationCriteria": "1. Supabase에 events 테이블 존재 (RLS 활성화)\n2. Supabase에 event_participants 테이블 존재 (RLS 활성화)\n3. RLS 정책 정상 동작: 비멤버 접근 차단, 본인 RSVP 수정 가능\n4. types/supabase.ts에 events, event_participants 타입 포함\n5. ROADMAP_V1.md 상세 섹션 'DB 마이그레이션 — T2'의 네 체크박스를 [x]로 변경\n6. ROADMAP_V1.md 요약 섹션의 **[T2]** 항목을 [x]로 변경\n7. 전체 진행 현황 Phase 2 진행률 업데이트 (2/7)",
+            "analysisResult": "Phase 2 이벤트 관리 구현. 기존 group-actions.ts 패턴(createClient, 에러 반환, Suspense+Skeleton)을 그대로 따르며, is_group_member() RLS 함수를 재사용한다. 파일명은 kebab-case, 컴포넌트는 PascalCase, 4칸 들여쓰기, TypeScript strict 모드를 유지한다. 태스크 완료 후 docs/roadmaps/ROADMAP_V1.md의 해당 체크박스를 업데이트한다.",
+            "notes": "완료 후 ROADMAP_V1.md에서 반드시 두 곳을 체크할 것:\n- 요약 섹션: `- [x] **[T2]** DB 마이그레이션: ...`\n- 상세 섹션: 'DB 마이그레이션 — T2' 내 네 체크박스 모두",
+            "summary": "events/event_participants 테이블 생성, RLS 정책 8개 적용, types/supabase.ts 재생성, ROADMAP 체크박스 업데이트 완료.",
+            "completedAt": "2026-03-02T07:09:24.859Z"
+        },
+        {
+            "id": "adbc4c24-1c69-4220-88e0-12ff57cfc472",
+            "name": "Server Actions 구현: event-actions.ts",
+            "description": "lib/actions/event-actions.ts 파일을 신규 생성하여 이벤트 관련 서버 액션을 구현한다.\n\n구현할 함수:\n\n1. EventWithParticipantCount 인터페이스: Event & { attendingCount: number; myStatus: string | null }\n\n2. createEvent(groupId: string, formData: FormData):\n   - 권한 확인: group_members에서 owner/admin 여부 체크\n   - 제목 필수 검증\n   - events INSERT (group_id, title, description, location, event_date, max_participants, status='open', created_by)\n   - revalidatePath + redirect to /protected/groups/[groupId]/events/[eventId]\n\n3. getGroupEvents(groupId: string): Promise<{ upcoming: EventWithParticipantCount[]; past: EventWithParticipantCount[] } | { error: string }>\n   - events SELECT WHERE group_id = groupId\n   - event_participants JOIN으로 attending 수 계산\n   - 현재 사용자의 RSVP 상태 포함\n   - event_date >= now() → upcoming, event_date < now() → past (event_date null → upcoming)\n\n4. updateRsvp(eventId: string, status: 'attending' | 'declined' | 'maybe'):\n   - 이벤트 조회 (max_participants, group_id 포함)\n   - 기존 레코드 조회 (현재 사용자)\n   - status='attending'이고 max_participants 존재 시: 현재 attending 수 카운트\n     - 초과 시 실제 status='waitlisted', waitlist_position=현재최대+1 부여\n   - 기존 레코드가 'attending'이고 새 status가 'attending'이 아닌 경우: promoteWaitlisted 호출\n   - UPSERT event_participants (onConflict: event_id, user_id)\n   - revalidatePath\n\n5. promoteWaitlisted(eventId: string) (내부 헬퍼, export 안 함):\n   - waitlisted 대기자를 waitlist_position ASC로 조회\n   - position=1인 대기자 → status='attending', waitlist_position=null로 UPDATE\n   - 나머지 대기자 waitlist_position -1 감소\n\n6. getEventById(eventId: string): Promise<{ event: Event } | { error: string }>\n   - 단일 이벤트 조회\n\n7. getEventParticipants(eventId: string): Promise<ParticipantWithProfile[] | { error: string }>\n   - event_participants SELECT with profiles JOIN\n   - ParticipantWithProfile: EventParticipant & { profile: Pick<Profile, 'email'|'username'|'avatar_url'> }\n\n그룹 멤버십 검증은 RLS에서 처리되므로 애플리케이션에서는 권한 체크만 추가.",
+            "status": "completed",
+            "dependencies": [
+                {
+                    "taskId": "7cc82f4e-1eb3-4734-bab9-50c613606f06"
+                }
+            ],
+            "createdAt": "2026-03-02T06:56:34.489Z",
+            "updatedAt": "2026-03-02T07:12:34.898Z",
+            "relatedFiles": [
+                {
+                    "path": "lib/actions/event-actions.ts",
+                    "type": "CREATE",
+                    "description": "이벤트 관련 서버 액션"
+                },
+                {
+                    "path": "lib/actions/group-actions.ts",
+                    "type": "REFERENCE",
+                    "description": "기존 Server Actions 패턴 참조"
+                },
+                {
+                    "path": "types/index.ts",
+                    "type": "REFERENCE",
+                    "description": "Event, EventParticipant 타입 참조"
+                },
+                {
+                    "path": "docs/roadmaps/ROADMAP_V1.md",
+                    "type": "TO_MODIFY",
+                    "description": "서버 액션 체크박스 업데이트"
+                }
+            ],
+            "implementationGuide": "group-actions.ts 패턴 그대로 적용:\n- 파일 상단: 'use server'\n- createClient() from @/lib/supabase/server\n- 에러 반환: { error: string }\n- 성공 반환: { success: true } 또는 데이터\n- revalidatePath + redirect 패턴\n\npseudocode:\n```\nasync function updateRsvp(eventId, newStatus) {\n  const event = await supabase.from('events').select('max_participants, group_id').eq('id', eventId).single()\n  const existing = await supabase.from('event_participants').select('status').eq('event_id', eventId).eq('user_id', user.id).single()\n  \n  let finalStatus = newStatus\n  let waitlistPosition = null\n  \n  if (newStatus === 'attending' && event.max_participants) {\n    const attendingCount = await supabase.from('event_participants').select('id', {count: 'exact'}).eq('event_id', eventId).eq('status', 'attending')\n    if (attendingCount >= event.max_participants) {\n      finalStatus = 'waitlisted'\n      const maxPosition = await supabase.from('event_participants').select('waitlist_position').eq('event_id', eventId).eq('status', 'waitlisted').order('waitlist_position', {ascending: false}).limit(1)\n      waitlistPosition = (maxPosition?.[0]?.waitlist_position ?? 0) + 1\n    }\n  }\n  \n  if (existing?.status === 'attending' && newStatus !== 'attending') {\n    await promoteWaitlisted(eventId)\n  }\n  \n  await supabase.from('event_participants').upsert({ event_id: eventId, user_id: user.id, status: finalStatus, waitlist_position: waitlistPosition }, { onConflict: 'event_id,user_id' })\n  revalidatePath(...)\n}\n```",
+            "verificationCriteria": "1. lib/actions/event-actions.ts 파일 생성\n2. createEvent, getGroupEvents, updateRsvp, getEventById, getEventParticipants 함수 export\n3. promoteWaitlisted 내부 헬퍼 구현 (export 없음)\n4. TypeScript 컴파일 오류 없음 (tsc --noEmit)\n5. RSVP 인원 초과 시 waitlisted 상태로 저장 확인\n6. ROADMAP_V1.md 상세 섹션 '서버 액션 구현 — T3'의 네 체크박스를 [x]로 변경\n7. ROADMAP_V1.md 요약 섹션의 **[T3]** 항목을 [x]로 변경\n8. 전체 진행 현황 Phase 2 진행률 업데이트 (3/7)",
+            "analysisResult": "Phase 2 이벤트 관리 구현. 기존 group-actions.ts 패턴(createClient, 에러 반환, Suspense+Skeleton)을 그대로 따르며, is_group_member() RLS 함수를 재사용한다. 파일명은 kebab-case, 컴포넌트는 PascalCase, 4칸 들여쓰기, TypeScript strict 모드를 유지한다. 태스크 완료 후 docs/roadmaps/ROADMAP_V1.md의 해당 체크박스를 업데이트한다.",
+            "notes": "완료 후 ROADMAP_V1.md에서 반드시 두 곳을 체크할 것:\n- 요약 섹션: `- [x] **[T3]** Server Actions 구현: ...`\n- 상세 섹션: '서버 액션 구현 — T3' 내 네 체크박스 모두",
+            "summary": "event-actions.ts 구현 완료. EventWithParticipantCount/ParticipantWithProfile 인터페이스, createEvent/getGroupEvents/updateRsvp/promoteWaitlisted(내부)/getEventById/getEventParticipants 전체 구현. N+1 방지 최적화, TypeScript 컴파일 오류 없음, ROADMAP 업데이트 완료.",
+            "completedAt": "2026-03-02T07:12:34.897Z"
+        },
+        {
+            "id": "cf4a0f95-6d0d-4635-aa29-0d73296f96cf",
+            "name": "이벤트 카드/목록 컴포넌트 구현",
+            "description": "components/events/ 디렉토리에 이벤트 목록 표시용 컴포넌트를 구현한다.\n\n1. components/events/EventCard.tsx (서버 컴포넌트):\n   - Props: event: EventWithParticipantCount (event-actions에서 정의된 타입)\n   - Link to /protected/groups/[groupId]/events/[eventId]\n   - Card UI: 이벤트 제목, event_date(date-fns format 사용), location, attendingCount/max_participants, myStatus 배지\n   - 상태 배지: attending=참석(green), declined=불참(red), maybe=미결정(yellow), waitlisted=대기(gray), null=미응답\n   - event_date null 시 '날짜 미정' 표시\n\n2. components/events/EventList.tsx (서버 컴포넌트):\n   - Props: events: EventWithParticipantCount[], groupId: string, emptyMessage: string\n   - events.length === 0 시 빈 상태(empty state) 표시\n   - GroupCard 스타일과 일관성 유지\n\n컴포넌트 파일명: event-card.tsx, event-list.tsx (kebab-case)",
+            "status": "completed",
+            "dependencies": [
+                {
+                    "taskId": "adbc4c24-1c69-4220-88e0-12ff57cfc472"
+                }
+            ],
+            "createdAt": "2026-03-02T06:56:34.489Z",
+            "updatedAt": "2026-03-02T07:15:20.694Z",
+            "relatedFiles": [
+                {
+                    "path": "components/events/event-card.tsx",
+                    "type": "CREATE",
+                    "description": "이벤트 카드 컴포넌트"
+                },
+                {
+                    "path": "components/events/event-list.tsx",
+                    "type": "CREATE",
+                    "description": "이벤트 목록 컴포넌트"
+                },
+                {
+                    "path": "components/groups/group-card.tsx",
+                    "type": "REFERENCE",
+                    "description": "기존 카드 스타일 참조"
+                },
+                {
+                    "path": "lib/actions/event-actions.ts",
+                    "type": "DEPENDENCY",
+                    "description": "EventWithParticipantCount 타입"
+                }
+            ],
+            "implementationGuide": "group-card.tsx, group-header.tsx 패턴 참조:\n- import from @/components/ui/...\n- date-fns format 함수로 날짜 포맷: format(new Date(event_date), 'yyyy년 M월 d일 HH:mm', {locale: ko})\n- ko locale import: import { ko } from 'date-fns/locale'\n- Badge 컴포넌트로 상태 표시\n- Card, CardContent, CardHeader 컴포넌트 사용",
+            "verificationCriteria": "1. components/events/event-card.tsx 파일 생성\n2. components/events/event-list.tsx 파일 생성\n3. TypeScript 타입 오류 없음\n4. date-fns 날짜 포맷 정상 동작 (event_date null 시 '날짜 미정' 표시)\n5. RSVP 상태 배지 정상 표시 (attending/declined/maybe/waitlisted/null)\n6. 빈 상태(empty state) 메시지 표시 확인\n7. ROADMAP_V1.md 상세 섹션 '컴포넌트 구현 — T4'의 두 체크박스를 [x]로 변경\n8. ROADMAP_V1.md 요약 섹션의 **[T4]** 항목을 [x]로 변경\n9. 전체 진행 현황 Phase 2 진행률 업데이트 (4/7)",
+            "analysisResult": "Phase 2 이벤트 관리 구현. 기존 group-actions.ts 패턴(createClient, 에러 반환, Suspense+Skeleton)을 그대로 따르며, is_group_member() RLS 함수를 재사용한다. 파일명은 kebab-case, 컴포넌트는 PascalCase, 4칸 들여쓰기, TypeScript strict 모드를 유지한다. 태스크 완료 후 docs/roadmaps/ROADMAP_V1.md의 해당 체크박스를 업데이트한다.",
+            "notes": "완료 후 ROADMAP_V1.md에서 반드시 두 곳을 체크할 것:\n- 요약 섹션: `- [x] **[T4]** 이벤트 카드/목록 컴포넌트 구현: ...`\n- 상세 섹션: '컴포넌트 구현 — T4' 내 두 체크박스 모두",
+            "summary": "event-card.tsx, event-list.tsx 생성 완료. date-fns ko 로케일 적용, RSVP 상태 배지, 빈 상태 처리, TypeScript 오류 없음, ROADMAP 업데이트 완료.",
+            "completedAt": "2026-03-02T07:15:20.693Z"
+        },
+        {
+            "id": "773b5d8b-be7d-4418-ae1e-e80a45e47ace",
+            "name": "그룹 상세 페이지 이벤트 목록 연동",
+            "description": "app/protected/groups/[groupId]/page.tsx를 수정하여 이벤트 목록을 Tabs로 표시한다.\n\n수정 내용:\n1. shadcn/ui Tabs (tabs.tsx)로 '예정 이벤트' / '지난 이벤트' 탭 구현\n2. getGroupEvents(groupId) 호출하여 upcoming/past 데이터 조회\n3. EventList 컴포넌트로 각 탭에 이벤트 목록 렌더링\n4. 이벤트 생성 버튼 추가 (owner/admin만 표시): Link to /protected/groups/[groupId]/events/new\n5. 기존 placeholder ('이벤트 기능은 Phase 2에서 구현됩니다.') 제거\n\n현재 파일 구조:\n- GroupContent 서버 컴포넌트에 getGroupById, getCurrentUserRole, getMembersByGroupId 호출 존재\n- getGroupEvents 추가 호출 후 Tabs 렌더링\n\nTabs 구조:\n- TabsList + TabsTrigger ('예정', '지난')\n- TabsContent: EventList 렌더링\n- 이벤트 생성 버튼은 Tabs 위에 배치 (userRole === 'owner' || 'admin' 조건)",
+            "status": "completed",
+            "dependencies": [
+                {
+                    "taskId": "cf4a0f95-6d0d-4635-aa29-0d73296f96cf"
+                }
+            ],
+            "createdAt": "2026-03-02T06:56:34.489Z",
+            "updatedAt": "2026-03-02T07:17:52.839Z",
+            "relatedFiles": [
+                {
+                    "path": "app/protected/groups/[groupId]/page.tsx",
+                    "type": "TO_MODIFY",
+                    "description": "이벤트 목록 연동"
+                },
+                {
+                    "path": "components/events/event-tabs.tsx",
+                    "type": "CREATE",
+                    "description": "이벤트 탭 클라이언트 컴포넌트"
+                },
+                {
+                    "path": "components/events/event-list.tsx",
+                    "type": "DEPENDENCY",
+                    "description": "이벤트 목록 컴포넌트"
+                },
+                {
+                    "path": "components/events/event-card.tsx",
+                    "type": "DEPENDENCY",
+                    "description": "이벤트 카드 컴포넌트"
+                },
+                {
+                    "path": "lib/actions/event-actions.ts",
+                    "type": "DEPENDENCY",
+                    "description": "getGroupEvents 함수"
+                },
+                {
+                    "path": "docs/roadmaps/ROADMAP_V1.md",
+                    "type": "TO_MODIFY",
+                    "description": "그룹 상세 이벤트 목록 체크박스 업데이트"
+                }
+            ],
+            "implementationGuide": "Tabs는 클라이언트 상태가 필요하므로 Tabs 부분만 별도 클라이언트 컴포넌트로 분리하거나, shadcn/ui Tabs가 서버에서 렌더링 가능한지 확인 필요.\nshadcn/ui Tabs는 Radix UI 기반으로 클라이언트 상태 필요 → 'use client' 컴포넌트로 EventTabs.tsx 분리 권장.\n\n구조:\n- GroupContent (서버): 데이터 조회 후 EventTabs에 props 전달\n- components/events/event-tabs.tsx (클라이언트): Tabs UI 렌더링",
+            "verificationCriteria": "1. 그룹 상세 페이지에서 예정/지난 탭 표시\n2. 각 탭에 해당 이벤트 목록 표시 (EventList 컴포넌트)\n3. owner/admin만 이벤트 생성 버튼 표시\n4. member는 이벤트 생성 버튼 미표시\n5. 이벤트 없을 때 빈 상태 처리 확인\n6. components/events/event-tabs.tsx 파일 생성\n7. ROADMAP_V1.md 상세 섹션 '그룹 상세 페이지 이벤트 목록 연동 — T5' 체크박스를 [x]로 변경\n8. ROADMAP_V1.md 요약 섹션의 **[T5]** 항목을 [x]로 변경\n9. 전체 진행 현황 Phase 2 진행률 업데이트 (5/7)",
+            "analysisResult": "Phase 2 이벤트 관리 구현. 기존 group-actions.ts 패턴(createClient, 에러 반환, Suspense+Skeleton)을 그대로 따르며, is_group_member() RLS 함수를 재사용한다. 파일명은 kebab-case, 컴포넌트는 PascalCase, 4칸 들여쓰기, TypeScript strict 모드를 유지한다. 태스크 완료 후 docs/roadmaps/ROADMAP_V1.md의 해당 체크박스를 업데이트한다.",
+            "notes": "완료 후 ROADMAP_V1.md에서 반드시 두 곳을 체크할 것:\n- 요약 섹션: `- [x] **[T5]** 그룹 상세 페이지 이벤트 목록 연동 ...`\n- 상세 섹션: '페이지 구현' 내 '그룹 상세 페이지 이벤트 목록 연동 — T5' 체크박스",
+            "summary": "event-tabs.tsx(클라이언트) 생성, group/[groupId]/page.tsx 수정 완료. EventTabs, EventList 연동, owner/admin 이벤트 생성 버튼, TypeScript 오류 없음, ROADMAP 업데이트 완료.",
+            "completedAt": "2026-03-02T07:17:52.838Z"
+        },
+        {
+            "id": "0e6f451f-5428-4a4a-8fd5-a6b2333e9710",
+            "name": "이벤트 생성 페이지 구현",
+            "description": "이벤트 생성 페이지와 폼 컴포넌트를 구현한다.\n\n1. components/events/event-create-form.tsx (클라이언트 컴포넌트 'use client'):\n   - Props: groupId: string\n   - 필드:\n     - 제목(title): 필수, Input\n     - 공지사항(description): 선택, Textarea\n     - 장소(location): 선택, Input\n     - 일시(event_date): Calendar + Popover 조합 날짜 피커\n       - date-fns format으로 선택된 날짜 표시\n       - 시간 입력: 별도 Input type='time'\n     - 인원 제한(max_participants): 선택, Input type='number' min=1\n   - createEvent Server Action 연동 (useTransition 또는 form action)\n   - 취소 버튼: router.back()\n   - 에러/로딩 상태 처리\n\n2. app/protected/groups/[groupId]/events/new/page.tsx (서버 컴포넌트):\n   - params에서 groupId 추출\n   - 권한 확인 (getCurrentUserRole)\n   - owner/admin이 아니면 redirect\n   - EventCreateForm 렌더링\n\n날짜+시간 처리:\n- Calendar로 날짜 선택 → state에 Date 저장\n- time Input으로 시간 선택\n- 제출 시 날짜+시간 합쳐서 ISO string으로 FormData에 추가",
+            "status": "completed",
+            "dependencies": [
+                {
+                    "taskId": "adbc4c24-1c69-4220-88e0-12ff57cfc472"
+                },
+                {
+                    "taskId": "a0793523-8617-4aa3-8480-703aa5738004"
+                }
+            ],
+            "createdAt": "2026-03-02T06:56:34.489Z",
+            "updatedAt": "2026-03-02T07:15:25.833Z",
+            "relatedFiles": [
+                {
+                    "path": "components/events/event-create-form.tsx",
+                    "type": "CREATE",
+                    "description": "이벤트 생성 폼 컴포넌트"
+                },
+                {
+                    "path": "app/protected/groups/[groupId]/events/new/page.tsx",
+                    "type": "CREATE",
+                    "description": "이벤트 생성 페이지"
+                },
+                {
+                    "path": "lib/actions/event-actions.ts",
+                    "type": "DEPENDENCY",
+                    "description": "createEvent 서버 액션"
+                },
+                {
+                    "path": "components/groups/group-create-form.tsx",
+                    "type": "REFERENCE",
+                    "description": "기존 폼 컴포넌트 패턴 참조"
+                },
+                {
+                    "path": "docs/roadmaps/ROADMAP_V1.md",
+                    "type": "TO_MODIFY",
+                    "description": "이벤트 생성 페이지 체크박스 업데이트"
+                }
+            ],
+            "implementationGuide": "Calendar+Popover 패턴:\n```\nconst [date, setDate] = useState<Date | undefined>()\nconst [time, setTime] = useState('')\n\n<Popover>\n  <PopoverTrigger asChild>\n    <Button variant='outline'>\n      {date ? format(date, 'yyyy년 M월 d일') : '날짜 선택'}\n    </Button>\n  </PopoverTrigger>\n  <PopoverContent>\n    <Calendar mode='single' selected={date} onSelect={setDate} />\n  </PopoverContent>\n</Popover>\n<Input type='time' value={time} onChange={e => setTime(e.target.value)} />\n```\n\n폼 제출 시 hidden input으로 event_date 전달:\n```\nconst eventDateTime = date && time ? `${format(date, 'yyyy-MM-dd')}T${time}:00` : ''\n```",
+            "verificationCriteria": "1. components/events/event-create-form.tsx 파일 생성 (클라이언트 컴포넌트)\n2. app/protected/groups/[groupId]/events/new/page.tsx 파일 생성\n3. Calendar + Popover 날짜 피커 정상 동작\n4. 제목 미입력 시 에러 표시\n5. 폼 제출 후 이벤트 상세 페이지로 이동\n6. owner/admin이 아닌 경우 접근 차단 (redirect)\n7. ROADMAP_V1.md 상세 섹션 '이벤트 생성 페이지 — T6' 체크박스를 [x]로 변경\n8. ROADMAP_V1.md 요약 섹션의 **[T6]** 항목을 [x]로 변경\n9. 전체 진행 현황 Phase 2 진행률 업데이트 (6/7)",
+            "analysisResult": "Phase 2 이벤트 관리 구현. 기존 group-actions.ts 패턴(createClient, 에러 반환, Suspense+Skeleton)을 그대로 따르며, is_group_member() RLS 함수를 재사용한다. 파일명은 kebab-case, 컴포넌트는 PascalCase, 4칸 들여쓰기, TypeScript strict 모드를 유지한다. 태스크 완료 후 docs/roadmaps/ROADMAP_V1.md의 해당 체크박스를 업데이트한다.",
+            "notes": "완료 후 ROADMAP_V1.md에서 반드시 두 곳을 체크할 것:\n- 요약 섹션: `- [x] **[T6]** 이벤트 생성 페이지 구현 ...`\n- 상세 섹션: '페이지 구현' 내 '이벤트 생성 페이지 — T6' 체크박스",
+            "summary": "event-create-form.tsx(클라이언트), events/new/page.tsx(서버) 생성 완료. Calendar+Popover 날짜피커, useTransition, owner/admin 접근 제어, TypeScript 오류 없음, ROADMAP 업데이트 완료.",
+            "completedAt": "2026-03-02T07:15:25.833Z"
+        },
+        {
+            "id": "159f8595-48ff-47b6-9558-65c16961c743",
+            "name": "이벤트 상세/RSVP 페이지 구현",
+            "description": "이벤트 상세 페이지와 RSVP 관련 컴포넌트를 구현한다.\n\n1. components/events/event-header.tsx (서버 컴포넌트):\n   - Props: event: Event\n   - 이벤트 제목, event_date(날짜+시간 포맷), location, description, status 배지, max_participants\n   - GroupHeader 스타일과 일관성 유지\n\n2. components/events/rsvp-toggle.tsx (클라이언트 컴포넌트 'use client'):\n   - Props: eventId: string, currentStatus: string | null\n   - ToggleGroup (single 모드): '참석' | '불참' | '미결정' 3개 옵션\n   - updateRsvp Server Action 호출\n   - 낙관적 업데이트(optimistic update) 또는 useTransition으로 로딩 상태\n   - 대기자 처리 시 'waitlisted' 상태 안내 toast(sonner)\n\n3. components/events/participant-list.tsx (서버 컴포넌트):\n   - Props: participants: ParticipantWithProfile[]\n   - 그룹: 참석자(attending), 불참자(declined), 미결정(maybe), 대기자(waitlisted)\n   - 각 그룹 헤더 + 아바타+이름 목록\n   - Avatar 컴포넌트(shadcn/ui) 사용\n\n4. app/protected/groups/[groupId]/events/[eventId]/page.tsx (서버 컴포넌트):\n   - getEventById(eventId), getEventParticipants(eventId) 병렬 호출\n   - 현재 사용자 RSVP 상태 확인\n   - EventHeader + RsvpToggle + ParticipantList 렌더링\n   - 정산 버튼 플레이스홀더 (Phase 3 연동)\n   - Suspense + Skeleton 패턴 적용",
+            "status": "completed",
+            "dependencies": [
+                {
+                    "taskId": "773b5d8b-be7d-4418-ae1e-e80a45e47ace"
+                },
+                {
+                    "taskId": "0e6f451f-5428-4a4a-8fd5-a6b2333e9710"
+                }
+            ],
+            "createdAt": "2026-03-02T06:56:34.489Z",
+            "updatedAt": "2026-03-02T07:22:52.540Z",
+            "relatedFiles": [
+                {
+                    "path": "components/events/event-header.tsx",
+                    "type": "CREATE",
+                    "description": "이벤트 상세 헤더"
+                },
+                {
+                    "path": "components/events/rsvp-toggle.tsx",
+                    "type": "CREATE",
+                    "description": "RSVP 토글 컴포넌트"
+                },
+                {
+                    "path": "components/events/participant-list.tsx",
+                    "type": "CREATE",
+                    "description": "참가자 목록 컴포넌트"
+                },
+                {
+                    "path": "app/protected/groups/[groupId]/events/[eventId]/page.tsx",
+                    "type": "CREATE",
+                    "description": "이벤트 상세 페이지"
+                },
+                {
+                    "path": "lib/actions/event-actions.ts",
+                    "type": "DEPENDENCY",
+                    "description": "getEventById, getEventParticipants, updateRsvp"
+                },
+                {
+                    "path": "components/groups/group-header.tsx",
+                    "type": "REFERENCE",
+                    "description": "헤더 스타일 참조"
+                },
+                {
+                    "path": "docs/roadmaps/ROADMAP_V1.md",
+                    "type": "TO_MODIFY",
+                    "description": "이벤트 상세/RSVP 체크박스 업데이트"
+                }
+            ],
+            "implementationGuide": "RsvpToggle pseudocode:\n```\n'use client'\nconst [isPending, startTransition] = useTransition()\nconst [optimisticStatus, setOptimisticStatus] = useState(currentStatus)\n\nfunction handleChange(newStatus) {\n  setOptimisticStatus(newStatus)\n  startTransition(async () => {\n    const result = await updateRsvp(eventId, newStatus)\n    if (result?.waitlisted) toast.info('인원 초과로 대기자 명단에 추가되었습니다.')\n  })\n}\n```\n\nParticipantList 구조:\n```\n참석자 ({attending.length}명)\n  Avatar + 이름 목록\n대기자 ({waitlisted.length}명)\n  Avatar + 이름 + 대기 순번\n불참자/미결정 섹션\n```",
+            "verificationCriteria": "1. components/events/event-header.tsx 파일 생성\n2. components/events/rsvp-toggle.tsx 파일 생성 (클라이언트 컴포넌트)\n3. components/events/participant-list.tsx 파일 생성\n4. app/protected/groups/[groupId]/events/[eventId]/page.tsx 파일 생성\n5. 이벤트 상세 정보 정상 표시\n6. RSVP 토글 변경 즉시 반영\n7. 참가자 목록 그룹별(참석/불참/미결정/대기) 표시\n8. 인원 초과 시 대기자 처리 + sonner toast 알림 표시\n9. ROADMAP_V1.md 상세 섹션 '이벤트 상세 페이지 — T7' 체크박스를 [x]로 변경\n10. ROADMAP_V1.md 요약 섹션의 **[T7]** 항목을 [x]로 변경\n11. 전체 진행 현황 Phase 2 진행률을 7/7로 업데이트, 상태를 ✅ 완료로 변경",
+            "analysisResult": "Phase 2 이벤트 관리 구현. 기존 group-actions.ts 패턴(createClient, 에러 반환, Suspense+Skeleton)을 그대로 따르며, is_group_member() RLS 함수를 재사용한다. 파일명은 kebab-case, 컴포넌트는 PascalCase, 4칸 들여쓰기, TypeScript strict 모드를 유지한다. 태스크 완료 후 docs/roadmaps/ROADMAP_V1.md의 해당 체크박스를 업데이트한다.",
+            "notes": "완료 후 ROADMAP_V1.md에서 반드시 두 곳을 체크할 것:\n- 요약 섹션: `- [x] **[T7]** 이벤트 상세/RSVP 페이지 구현 ...`\n- 상세 섹션: '페이지 구현' 내 '이벤트 상세 페이지 — T7' 체크박스\n- T7이 마지막 태스크이므로 전체 진행 현황에서 Phase 2 상태를 ✅ 완료로, 진행률을 7/7로 변경",
+            "summary": "T7 이벤트 상세/RSVP 페이지 구현 완료. event-header.tsx(서버, date-fns ko 로케일, STATUS_LABELS/VARIANTS), rsvp-toggle.tsx(클라이언트, 낙관적 업데이트, 롤백, waitlisted toast), participant-list.tsx(서버, 4그룹 분류, Avatar, Separator), events/[eventId]/page.tsx(서버, Suspense+Skeleton, 병렬 조회, Phase3 플레이스홀더) 모두 구현. TypeScript strict 준수, RSC 우선 원칙 준수.",
+            "completedAt": "2026-03-02T07:22:52.536Z"
+        }
+    ]
+}

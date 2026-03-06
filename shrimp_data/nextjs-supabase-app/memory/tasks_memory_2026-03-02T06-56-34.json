@@ -1,0 +1,165 @@
+{
+    "tasks": [
+        {
+            "id": "c3811fdc-ff84-44bc-a2a6-b4184186a184",
+            "name": "DB 마이그레이션: groups 및 group_members 테이블 생성 + RLS",
+            "description": "groups, group_members 테이블을 생성하고 RLS 정책 및 헬퍼 함수를 설정한다.\n\n## 구현 내용\n\n### groups 테이블\n- id UUID DEFAULT gen_random_uuid() PRIMARY KEY\n- name TEXT NOT NULL\n- description TEXT\n- invite_code TEXT UNIQUE NOT NULL\n- created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL\n- created_at TIMESTAMPTZ DEFAULT now()\n- updated_at TIMESTAMPTZ DEFAULT now()\n\n### group_members 테이블\n- id UUID DEFAULT gen_random_uuid() PRIMARY KEY\n- group_id UUID REFERENCES public.groups(id) ON DELETE CASCADE NOT NULL\n- user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL\n- role TEXT NOT NULL CHECK (role IN ('owner', 'admin', 'member')) DEFAULT 'member'\n- joined_at TIMESTAMPTZ DEFAULT now()\n- UNIQUE(group_id, user_id)\n\n### RLS 정책\n- 양쪽 테이블 RLS 활성화\n- is_group_member(p_group_id UUID) SECURITY DEFINER 함수 생성\n- groups SELECT: is_group_member(id) 또는 인증된 사용자가 invite_code로 조회 가능\n- groups INSERT: auth.uid() IS NOT NULL\n- groups UPDATE: role이 owner 또는 admin인 멤버만\n- groups DELETE: role이 owner인 멤버만\n- group_members SELECT: is_group_member(group_id)\n- group_members INSERT: auth.uid() IS NOT NULL\n- group_members DELETE: 그룹의 owner/admin이거나 본인\n\n### Supabase 타입 재생성\n- mcp__supabase__generate_typescript_types 도구 실행\n- 결과를 types/supabase.ts에 저장",
+            "status": "completed",
+            "dependencies": [],
+            "createdAt": "2026-03-02T06:33:20.449Z",
+            "updatedAt": "2026-03-02T06:36:14.784Z",
+            "relatedFiles": [
+                {
+                    "path": "types/supabase.ts",
+                    "type": "TO_MODIFY",
+                    "description": "Supabase 자동 생성 타입 - generate 도구로 재생성"
+                }
+            ],
+            "implementationGuide": "1. mcp__supabase__apply_migration으로 create_groups_table 마이그레이션 실행\n2. mcp__supabase__apply_migration으로 create_group_members_table 마이그레이션 실행\n3. mcp__supabase__apply_migration으로 create_groups_rls_policies 마이그레이션 실행\n4. mcp__supabase__generate_typescript_types 실행 후 types/supabase.ts 저장",
+            "verificationCriteria": "mcp__supabase__list_tables로 groups, group_members 테이블 확인. mcp__supabase__get_advisors(security)에서 두 테이블 RLS 경고 없음. types/supabase.ts에 groups, group_members Row 타입 포함.",
+            "analysisResult": "Phase 1 그룹 관리 기능을 DB 마이그레이션 → Server Actions → 컴포넌트 → 페이지 순서로 구현한다. 모든 구현은 shrimp-rules.md의 규칙을 따른다: Server Action에 use server 선언, 인증 확인 필수, 에러는 { error: string } 반환, revalidatePath() 호출 필수. 파일명은 kebab-case, 컴포넌트 export는 PascalCase. RLS 없이 테이블 생성 금지. types/supabase.ts는 generate 도구로만 재생성.",
+            "summary": "groups, group_members 테이블 생성 완료. is_group_member() SECURITY DEFINER 함수 생성 (search_path 고정). 7개 RLS 정책 적용. types/supabase.ts 재생성 완료 (group_members, groups, is_group_member 타입 포함). groups_select_by_invite 정책으로 초대 코드 기반 그룹 조회 지원.",
+            "completedAt": "2026-03-02T06:36:14.783Z"
+        },
+        {
+            "id": "efca925d-6149-4cc0-80fe-8a050555b32b",
+            "name": "Server Actions 구현: lib/actions/group-actions.ts",
+            "description": "그룹 CRUD 및 멤버 관리를 위한 모든 Server Actions를 lib/actions/group-actions.ts 파일에 구현한다.\n\n## 구현할 함수 목록\n\n### createGroup(formData: FormData)\n- 인증 확인 (supabase.auth.getUser())\n- name 필수 검증 (빈 문자열 거부)\n- invite_code 생성: crypto.randomUUID().replace(/-/g, '').substring(0, 12).toUpperCase()\n- UNIQUE 충돌 시 재시도 (최대 3회)\n- groups 테이블 INSERT\n- group_members에 owner로 INSERT\n- revalidatePath('/protected')\n- redirect('/protected/groups/' + groupId)\n\n### getMyGroups()\n- 인증 확인\n- group_members JOIN groups 쿼리 (현재 사용자 기준)\n- 반환: Group[] 또는 { error: string }\n\n### getGroupById(groupId: string)\n- 인증 확인\n- groups SELECT WHERE id = groupId\n- 반환: { group: Group } 또는 { error: string }\n\n### getMembersByGroupId(groupId: string)\n- 인증 확인\n- group_members JOIN profiles 쿼리 WHERE group_id = groupId\n- 반환: MemberWithProfile[] 또는 { error: string }\n\n### joinGroup(inviteCode: string)\n- 인증 확인\n- invite_code로 groups 조회\n- 이미 멤버면 redirect('/protected/groups/' + groupId)\n- 신규면 INSERT group_members (role: member)\n- revalidatePath('/protected')\n- redirect('/protected/groups/' + groupId)\n\n### removeMember(groupId: string, userId: string)\n- 인증 확인\n- 현재 사용자 role 확인 (owner/admin만 가능)\n- DELETE group_members\n- revalidatePath('/protected/groups/' + groupId + '/settings')\n- 반환: { success: true } 또는 { error: string }\n\n### regenerateInviteCode(groupId: string)\n- 인증 확인\n- role 확인 (owner/admin만)\n- UPDATE invite_code\n- revalidatePath('/protected/groups/' + groupId)\n- 반환: { inviteCode: string } 또는 { error: string }\n\n### updateGroup(groupId: string, formData: FormData)\n- 인증 확인\n- role 확인 (owner/admin만)\n- UPDATE groups\n- revalidatePath('/protected/groups/' + groupId)\n- 반환: { success: true } 또는 { error: string }\n\n### deleteGroup(groupId: string)\n- 인증 확인\n- role 확인 (owner만)\n- DELETE groups (CASCADE)\n- revalidatePath('/protected')\n- redirect('/protected')",
+            "status": "completed",
+            "dependencies": [
+                {
+                    "taskId": "c3811fdc-ff84-44bc-a2a6-b4184186a184"
+                }
+            ],
+            "createdAt": "2026-03-02T06:33:20.449Z",
+            "updatedAt": "2026-03-02T06:37:13.263Z",
+            "relatedFiles": [
+                {
+                    "path": "lib/actions/group-actions.ts",
+                    "type": "CREATE",
+                    "description": "그룹 관련 Server Actions 전체"
+                },
+                {
+                    "path": "types/index.ts",
+                    "type": "REFERENCE",
+                    "description": "Group, GroupMember 타입 참조"
+                },
+                {
+                    "path": "lib/supabase/server.ts",
+                    "type": "DEPENDENCY",
+                    "description": "createClient 함수 import 경로"
+                }
+            ],
+            "implementationGuide": "lib/actions/group-actions.ts 파일 신규 생성:\n1. 'use server' 선언\n2. import createClient from lib/supabase/server\n3. import revalidatePath from next/cache\n4. import redirect from next/navigation\n5. 각 함수 구현 시 shrimp-rules.md 패턴 준수",
+            "verificationCriteria": "lib/actions/group-actions.ts 파일에 9개 함수 모두 구현. use server 파일 선언 확인. npm run type-check 에러 없음.",
+            "analysisResult": "Phase 1 그룹 관리 기능을 DB 마이그레이션 → Server Actions → 컴포넌트 → 페이지 순서로 구현한다. 모든 구현은 shrimp-rules.md의 규칙을 따른다: Server Action에 use server 선언, 인증 확인 필수, 에러는 { error: string } 반환, revalidatePath() 호출 필수. 파일명은 kebab-case, 컴포넌트 export는 PascalCase. RLS 없이 테이블 생성 금지. types/supabase.ts는 generate 도구로만 재생성.",
+            "summary": "lib/actions/group-actions.ts 생성 완료. 9개 함수 구현: createGroup, getMyGroups, getGroupById, getCurrentUserRole, getMembersByGroupId, joinGroup, removeMember, regenerateInviteCode, updateGroup, deleteGroup. MemberWithProfile 인터페이스도 이 파일에 정의. npm run type-check 통과.",
+            "completedAt": "2026-03-02T06:37:13.262Z"
+        },
+        {
+            "id": "e8f7ac9b-3119-40cd-adef-e7c4d2020ad0",
+            "name": "그룹 컴포넌트 구현: GroupCard, GroupCreateForm, GroupHeader, InviteLinkButton",
+            "description": "그룹 생성 및 표시에 필요한 4개 컴포넌트를 components/groups/ 디렉토리에 구현한다.\n\n## 컴포넌트 목록\n\n### GroupCard (components/groups/group-card.tsx)\n- 서버 컴포넌트 (props 기반)\n- shadcn/ui Card 사용\n- 그룹명, 설명, 멤버 수, 역할 배지 표시\n- Link로 /protected/groups/[groupId] 이동\n\n### GroupCreateForm (components/groups/group-create-form.tsx)\n- 클라이언트 컴포넌트 ('use client')\n- 그룹명 input (필수), 설명 textarea (선택)\n- createGroup Server Action 연동\n- 에러 표시, 취소 버튼 (router.back())\n\n### GroupHeader (components/groups/group-header.tsx)\n- 서버 컴포넌트\n- 그룹명, 설명 표시\n- owner/admin이면 설정 링크 표시\n\n### InviteLinkButton (components/groups/invite-link-button.tsx)\n- 클라이언트 컴포넌트 ('use client')\n- navigator.clipboard.writeText로 초대 링크 복사\n- 복사 성공 시 시각적 피드백",
+            "status": "completed",
+            "dependencies": [
+                {
+                    "taskId": "efca925d-6149-4cc0-80fe-8a050555b32b"
+                }
+            ],
+            "createdAt": "2026-03-02T06:33:20.449Z",
+            "updatedAt": "2026-03-02T06:38:38.512Z",
+            "relatedFiles": [
+                {
+                    "path": "components/groups/group-card.tsx",
+                    "type": "CREATE",
+                    "description": "그룹 카드 컴포넌트"
+                },
+                {
+                    "path": "components/groups/group-create-form.tsx",
+                    "type": "CREATE",
+                    "description": "그룹 생성 폼 클라이언트 컴포넌트"
+                },
+                {
+                    "path": "components/groups/group-header.tsx",
+                    "type": "CREATE",
+                    "description": "그룹 상세 헤더 서버 컴포넌트"
+                },
+                {
+                    "path": "components/groups/invite-link-button.tsx",
+                    "type": "CREATE",
+                    "description": "초대 링크 복사 버튼 클라이언트 컴포넌트"
+                },
+                {
+                    "path": "components/ui/card.tsx",
+                    "type": "DEPENDENCY",
+                    "description": "shadcn/ui Card 컴포넌트"
+                },
+                {
+                    "path": "components/ui/button.tsx",
+                    "type": "DEPENDENCY",
+                    "description": "shadcn/ui Button 컴포넌트"
+                },
+                {
+                    "path": "lib/utils.ts",
+                    "type": "DEPENDENCY",
+                    "description": "cn() 클래스 병합 유틸리티"
+                }
+            ],
+            "implementationGuide": "1. components/groups/ 디렉토리 생성\n2. 각 파일을 kebab-case로 생성\n3. shadcn/ui Card, Button, Badge, Textarea, Input 활용\n4. lucide-react 아이콘 활용\n5. import { cn } from '@/lib/utils' 사용",
+            "verificationCriteria": "4개 컴포넌트 파일 생성. 서버/클라이언트 구분 정확. npm run type-check 에러 없음.",
+            "analysisResult": "Phase 1 그룹 관리 기능을 DB 마이그레이션 → Server Actions → 컴포넌트 → 페이지 순서로 구현한다. 모든 구현은 shrimp-rules.md의 규칙을 따른다: Server Action에 use server 선언, 인증 확인 필수, 에러는 { error: string } 반환, revalidatePath() 호출 필수. 파일명은 kebab-case, 컴포넌트 export는 PascalCase. RLS 없이 테이블 생성 금지. types/supabase.ts는 generate 도구로만 재생성.",
+            "summary": "4개 컴포넌트 생성 완료: group-card.tsx(서버), group-create-form.tsx(클라이언트, useActionState), group-header.tsx(서버), invite-link-button.tsx(클라이언트, clipboard API + execCommand 폴백). npm run type-check 통과.",
+            "completedAt": "2026-03-02T06:38:38.511Z"
+        },
+        {
+            "id": "36aeb273-c971-415b-96bd-4e788b6fd987",
+            "name": "멤버 관리 컴포넌트 구현: JoinGroupCard, MemberList, MemberItem",
+            "description": "초대 참가 및 멤버 관리에 필요한 3개 컴포넌트를 구현한다.\n\n## 컴포넌트 목록\n\n### JoinGroupCard (components/groups/join-group-card.tsx)\n- 서버 컴포넌트\n- 그룹 정보 미리보기 (그룹명, 설명, 멤버 수)\n- 참가하기 폼 (joinGroup Server Action)\n\n### MemberList (components/groups/member-list.tsx)\n- 서버 컴포넌트\n- MemberItem 목록 렌더링\n\n### MemberItem (components/groups/member-item.tsx)\n- 클라이언트 컴포넌트 ('use client')\n- 아바타, 이메일/username, 역할 배지 표시\n- owner/admin이면 추방 버튼 표시 (확인 다이얼로그)\n- removeMember Server Action 호출\n\n## 타입 추가\ntypes/index.ts에 MemberWithProfile 인터페이스 추가:\ninterface MemberWithProfile extends GroupMember {\n  profile: Pick<Profile, 'email' | 'username' | 'avatar_url'>;\n}",
+            "status": "completed",
+            "dependencies": [
+                {
+                    "taskId": "efca925d-6149-4cc0-80fe-8a050555b32b"
+                }
+            ],
+            "createdAt": "2026-03-02T06:33:20.449Z",
+            "updatedAt": "2026-03-02T06:38:41.122Z",
+            "relatedFiles": [
+                {
+                    "path": "components/groups/join-group-card.tsx",
+                    "type": "CREATE",
+                    "description": "초대 참가 그룹 정보 카드 서버 컴포넌트"
+                },
+                {
+                    "path": "components/groups/member-list.tsx",
+                    "type": "CREATE",
+                    "description": "멤버 목록 서버 컴포넌트"
+                },
+                {
+                    "path": "components/groups/member-item.tsx",
+                    "type": "CREATE",
+                    "description": "개별 멤버 아이템 클라이언트 컴포넌트"
+                },
+                {
+                    "path": "types/index.ts",
+                    "type": "TO_MODIFY",
+                    "description": "MemberWithProfile 인터페이스 추가"
+                },
+                {
+                    "path": "components/ui/avatar.tsx",
+                    "type": "DEPENDENCY",
+                    "description": "shadcn/ui Avatar 컴포넌트"
+                },
+                {
+                    "path": "components/ui/dialog.tsx",
+                    "type": "DEPENDENCY",
+                    "description": "shadcn/ui Dialog 컴포넌트 (추방 확인)"
+                }
+            ],
+            "implementationGuide": "1. types/index.ts에 MemberWithProfile 인터페이스 추가\n2. join-group-card.tsx 생성 (서버 컴포넌트)\n3. member-list.tsx 생성 (서버 컴포넌트)\n4. member-item.tsx 생성 ('use client')\n5. shadcn/ui Avatar, Badge, Dialog, Button 활용",
+            "verificationCriteria": "3개 컴포넌트 파일 생성. MemberWithProfile 타입 추가. npm run type-check 에러 없음.",
+            "analysisResult": "Phase 1 그룹 관리 기능을 DB 마이그레이션 → Server Actions → 컴포넌트 → 페이지 순서로 구현한다. 모든 구현은 shrimp-rules.md의 규칙을 따른다: Server Action에 use server 선언, 인증 확인 필수, 에러는 { error: string } 반환, revalidatePath() 호출 필수. 파일명은 kebab-case, 컴포넌트 export는 PascalCase. RLS 없이 테이블 생성 금지. types/supabase.ts는 generate 도구로만 재생성.",
+            "summary": "3개 컴포넌트 생성 완료: join-group-card.tsx(서버, inline server action), member-list.tsx(서버), member-item.tsx(클라이언트, Dialog 확인). types/index.ts에 MemberWithProfile 인터페이스 추가. npm run type-check 통과.",
+            "completedAt": "2026-03-02T06:38:41.121Z"
+        }
+    ]
+}
