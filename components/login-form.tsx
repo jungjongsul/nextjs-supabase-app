@@ -46,6 +46,8 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
                 password,
             });
             if (error) throw error;
+            // router.refresh()로 Router Cache 무효화 후 이동해야 최신 그룹 목록이 반영됨
+            router.refresh();
             router.push(next ?? "/protected");
         } catch (error: unknown) {
             setError(error instanceof Error ? error.message : "오류가 발생했습니다");
