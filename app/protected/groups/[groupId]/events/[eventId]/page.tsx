@@ -1,7 +1,9 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { EventHeader } from "@/components/events/event-header";
 import { RsvpToggle } from "@/components/events/rsvp-toggle";
 import { ParticipantList } from "@/components/events/participant-list";
@@ -14,7 +16,7 @@ interface Props {
 
 // 이벤트 상세 콘텐츠 — 서버 컴포넌트에서 데이터 페칭 후 렌더링
 async function EventContent({ params }: { params: Promise<{ groupId: string; eventId: string }> }) {
-    const { eventId } = await params;
+    const { groupId, eventId } = await params;
 
     // 현재 로그인 사용자 조회 (RSVP 상태 확인용)
     const supabase = await createClient();
@@ -49,13 +51,13 @@ async function EventContent({ params }: { params: Promise<{ groupId: string; eve
             <Separator />
             {/* 참가자 목록: 상태별 그룹 분류 표시 */}
             <div className="space-y-3">
-                <h2 className="text-sm font-semibold text-muted-foreground">참가자</h2>
+                <h2 className="text-muted-foreground text-sm font-semibold">참가자</h2>
                 <ParticipantList participants={participants} />
             </div>
-            {/* Phase 3 정산 기능 플레이스홀더 */}
-            <div className="rounded-lg border border-dashed p-4 text-center">
-                <p className="text-sm text-muted-foreground">정산 기능은 Phase 3에서 구현됩니다.</p>
-            </div>
+            {/* 정산 관리 버튼 */}
+            <Button asChild variant="outline" className="w-full">
+                <Link href={`/protected/groups/${groupId}/events/${eventId}/settle`}>정산하기</Link>
+            </Button>
         </div>
     );
 }
