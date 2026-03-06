@@ -1,7 +1,11 @@
 import { adminLogout } from "@/lib/actions/admin-auth";
 import { Button } from "@/components/ui/button";
+import { cookies } from "next/headers";
 
-export default function AdminMainLayout({ children }: { children: React.ReactNode }) {
+// 쿠키를 읽어 동적 렌더링 강제 (admin_token 체크)
+export default async function AdminMainLayout({ children }: { children: React.ReactNode }) {
+    // proxy.ts에서 이미 인증을 처리하지만 레이아웃에서 쿠키를 읽어 동적 렌더링을 보장
+    await cookies();
     return (
         <div className="flex min-h-screen flex-col">
             <header className="bg-background border-b">
