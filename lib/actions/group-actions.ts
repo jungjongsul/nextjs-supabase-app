@@ -117,10 +117,8 @@ export async function getMyGroups(): Promise<GroupWithDetails[] | { error: strin
 export async function getGroupById(groupId: string): Promise<{ group: Group } | { error: string }> {
     const supabase = await createClient();
 
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return { error: "로그인이 필요합니다." };
+    const { data: claimsData } = await supabase.auth.getClaims();
+    if (!claimsData?.claims?.sub) return { error: "로그인이 필요합니다." };
 
     const { data, error } = await supabase.from("groups").select("*").eq("id", groupId).single();
 
@@ -158,10 +156,8 @@ export async function getMembersByGroupId(
 ): Promise<MemberWithProfile[] | { error: string }> {
     const supabase = await createClient();
 
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return { error: "로그인이 필요합니다." };
+    const { data: claimsData } = await supabase.auth.getClaims();
+    if (!claimsData?.claims?.sub) return { error: "로그인이 필요합니다." };
 
     const { data, error } = await supabase
         .from("group_members")

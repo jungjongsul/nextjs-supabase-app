@@ -73,44 +73,37 @@ export async function getGroupEvents(
 > {
     const supabase = await createClient();
 
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return { error: "로그인이 필요합니다." };
+    const { data: claimsData } = await supabase.auth.getClaims();
+    const userId = claimsData?.claims?.sub;
+    if (!userId) return { error: "로그인이 필요합니다." };
 
-    // 이벤트 목록 조회
+    // 이벤트 목록 + 참가자 정보를 nested select로 단일 쿼리 조회
     const { data: events, error: eventsError } = await supabase
         .from("events")
-        .select("*")
+        .select("*, event_participants(event_id, user_id, status)")
         .eq("group_id", groupId)
         .order("event_date", { ascending: true });
 
     if (eventsError) return { error: eventsError.message };
     if (!events || events.length === 0) return { upcoming: [], past: [] };
 
-    const eventIds = events.map((e) => e.id);
-
-    // 모든 이벤트의 attending 참가자 수를 한 번에 조회
-    const { data: allParticipants, error: participantsError } = await supabase
-        .from("event_participants")
-        .select("event_id, user_id, status")
-        .in("event_id", eventIds);
-
-    if (participantsError) return { error: participantsError.message };
-
-    const participants = allParticipants ?? [];
-
-    // attendingCount 맵 구성
+    // attendingCount 맵, 내 상태 맵 구성
     const attendingCountMap: Record<string, number> = {};
-    // 내 상태 맵 구성
     const myStatusMap: Record<string, string> = {};
 
-    for (const p of participants) {
-        if (p.status === "attending") {
-            attendingCountMap[p.event_id] = (attendingCountMap[p.event_id] ?? 0) + 1;
-        }
-        if (p.user_id === user.id) {
-            myStatusMap[p.event_id] = p.status;
+    for (const event of events) {
+        const participants = (event.event_participants ?? []) as Array<{
+            event_id: string;
+            user_id: string;
+            status: string;
+        }>;
+        for (const p of participants) {
+            if (p.status === "attending") {
+                attendingCountMap[p.event_id] = (attendingCountMap[p.event_id] ?? 0) + 1;
+            }
+            if (p.user_id === userId) {
+                myStatusMap[p.event_id] = p.status;
+            }
         }
     }
 
