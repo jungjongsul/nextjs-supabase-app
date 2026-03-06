@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { GoogleIcon } from "@/components/icons/google";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
@@ -18,6 +18,8 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const next = searchParams.get("next");
 
     const handleGoogleSignUp = async () => {
         const supabase = createClient();
@@ -26,7 +28,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: `${window.location.origin}/auth/callback`,
+                redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next ?? "/protected")}`,
             },
         });
 
@@ -50,11 +52,15 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                 email,
                 password,
                 options: {
-                    emailRedirectTo: `${window.location.origin}/protected`,
+                    emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next ?? "/protected")}`,
                 },
             });
             if (error) throw error;
-            router.push("/auth/sign-up-success");
+            router.push(
+                next
+                    ? `/auth/sign-up-success?next=${encodeURIComponent(next)}`
+                    : "/auth/sign-up-success",
+            );
         } catch (error: unknown) {
             setError(error instanceof Error ? error.message : "오류가 발생했습니다");
         } finally {
@@ -133,7 +139,14 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
                         </div>
                         <div className="mt-4 text-center text-sm">
                             이미 계정이 있으신가요?{" "}
-                            <Link href="/auth/login" className="underline underline-offset-4">
+                            <Link
+                                href={
+                                    next
+                                        ? `/auth/login?next=${encodeURIComponent(next)}`
+                                        : "/auth/login"
+                                }
+                                className="underline underline-offset-4"
+                            >
                                 로그인
                             </Link>
                         </div>

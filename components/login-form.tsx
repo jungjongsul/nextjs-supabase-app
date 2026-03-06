@@ -27,7 +27,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: `${window.location.origin}/auth/callback`,
+                redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next ?? "/protected")}`,
             },
         });
 
@@ -119,7 +119,14 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
                         </div>
                         <div className="mt-4 text-center text-sm">
                             계정이 없으신가요?{" "}
-                            <Link href="/auth/sign-up" className="underline underline-offset-4">
+                            <Link
+                                href={
+                                    next
+                                        ? `/auth/sign-up?next=${encodeURIComponent(next)}`
+                                        : "/auth/sign-up"
+                                }
+                                className="underline underline-offset-4"
+                            >
                                 회원가입
                             </Link>
                         </div>
