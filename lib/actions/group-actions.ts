@@ -159,15 +159,35 @@ export async function getMembersByGroupId(
     const { data: claimsData } = await supabase.auth.getClaims();
     if (!claimsData?.claims?.sub) return { error: "로그인이 필요합니다." };
 
-    const { data, error } = await supabase
+    // group_members → profiles FK가 없으므로 쿼리를 분리
+    const { data: members, error: membersError } = await supabase
         .from("group_members")
-        .select("*, profile:profiles(email, username, avatar_url)")
+        .select("*")
         .eq("group_id", groupId)
         .order("joined_at", { ascending: true });
 
-    if (error) return { error: error.message };
+    if (membersError) return { error: membersError.message };
+    if (!members || members.length === 0) return [];
 
-    return (data ?? []) as unknown as MemberWithProfile[];
+    const userIds = members.map((m) => m.user_id);
+
+    const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, email, username, avatar_url")
+        .in("id", userIds);
+
+    if (profilesError) return { error: profilesError.message };
+
+    const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
+
+    return members.map((member) => ({
+        ...member,
+        profile: profileMap.get(member.user_id) ?? {
+            email: null,
+            username: null,
+            avatar_url: null,
+        },
+    })) as unknown as MemberWithProfile[];
 }
 
 export async function joinGroup(inviteCode: string) {

@@ -34,8 +34,8 @@ export function AdminLoginForm({ action }: AdminLoginFormProps) {
             <CardContent>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="id">아이디</Label>
-                        <Input id="id" name="id" type="text" required autoComplete="username" />
+                        <Label htmlFor="email">이메일</Label>
+                        <Input id="email" name="email" type="email" required autoComplete="email" />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="password">비밀번호</Label>
@@ -47,7 +47,7 @@ export function AdminLoginForm({ action }: AdminLoginFormProps) {
                             autoComplete="current-password"
                         />
                     </div>
-                    {error && <p className="text-sm text-destructive">{error}</p>}
+                    {error && <p className="text-destructive text-sm">{error}</p>}
                     <Button type="submit" className="w-full" disabled={isLoading}>
                         {isLoading ? "로그인 중..." : "로그인"}
                     </Button>

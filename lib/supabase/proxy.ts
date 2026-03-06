@@ -42,19 +42,40 @@ export async function updateSession(request: NextRequest) {
 
     // IMPORTANT: If you remove getClaims() and you use server-side rendering
     // with the Supabase client, your users may be randomly logged out.
-    // 어드민 경로는 별도 인증 처리 (Supabase auth 우회)
+    const { data } = await supabase.auth.getClaims();
+
+    // 어드민 경로: Supabase 세션 + profiles.is_admin 확인
     if (request.nextUrl.pathname.startsWith("/admin")) {
         const isLoginPage = request.nextUrl.pathname === "/admin/login";
-        const adminToken = request.cookies.get("admin_token")?.value;
-        const isAuthenticated = adminToken === process.env.ADMIN_SESSION_TOKEN;
+        const userId = data?.claims?.sub;
 
-        if (!isAuthenticated && !isLoginPage) {
+        if (!userId) {
+            if (!isLoginPage) {
+                const url = request.nextUrl.clone();
+                url.pathname = "/admin/login";
+                return NextResponse.redirect(url);
+            }
+            return supabaseResponse;
+        }
+
+        // RLS 우회하여 is_admin 확인
+        const { createAdminClient } = await import("@/lib/supabase/admin");
+        const adminClient = createAdminClient();
+        const { data: profile } = await adminClient
+            .from("profiles")
+            .select("is_admin")
+            .eq("id", userId)
+            .single();
+
+        const isAdmin = profile?.is_admin === true;
+
+        if (!isAdmin && !isLoginPage) {
             const url = request.nextUrl.clone();
             url.pathname = "/admin/login";
             return NextResponse.redirect(url);
         }
 
-        if (isAuthenticated && isLoginPage) {
+        if (isAdmin && isLoginPage) {
             const url = request.nextUrl.clone();
             url.pathname = "/admin";
             return NextResponse.redirect(url);
@@ -63,7 +84,6 @@ export async function updateSession(request: NextRequest) {
         return supabaseResponse;
     }
 
-    const { data } = await supabase.auth.getClaims();
     const user = data?.claims;
 
     // 로그인된 사용자가 루트(/) 또는 로그인/회원가입 페이지 접근 시 /protected로 리다이렉트

@@ -2,9 +2,9 @@ import { adminLogout } from "@/lib/actions/admin-auth";
 import { Button } from "@/components/ui/button";
 import { cookies } from "next/headers";
 
-// 쿠키를 읽어 동적 렌더링 강제 (admin_token 체크)
+// 쿠키를 읽어 동적 렌더링 강제 (Supabase 세션 기반 어드민 인증)
 export default async function AdminMainLayout({ children }: { children: React.ReactNode }) {
-    // proxy.ts에서 이미 인증을 처리하지만 레이아웃에서 쿠키를 읽어 동적 렌더링을 보장
+    // proxy.ts에서 Supabase 세션 + profiles.is_admin으로 인증 처리
     await cookies();
     return (
         <div className="flex min-h-screen flex-col">
