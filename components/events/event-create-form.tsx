@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { CalendarIcon, Clock } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +20,10 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 import { createEvent } from "@/lib/actions/event-actions";
+
+const BUCKET = "group-image";
 
 interface EventCreateFormProps {
     groupId: string;
@@ -30,11 +34,37 @@ const MINUTES = ["00", "10", "20", "30", "40", "50"];
 
 export function EventCreateForm({ groupId }: EventCreateFormProps) {
     const router = useRouter();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+    const [imageError, setImageError] = useState<string | null>(null);
     const [date, setDate] = useState<Date | undefined>(undefined);
     const [hour, setHour] = useState<string>("");
     const [minute, setMinute] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [isPending, startTransition] = useTransition();
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setPreviewUrl(URL.createObjectURL(file));
+        setImageError(null);
+
+        const supabase = createClient();
+        const ext = file.name.split(".").pop();
+        const path = `events/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+        const { data, error: uploadError } = await supabase.storage.from(BUCKET).upload(path, file);
+        if (uploadError) {
+            setImageError("이미지 업로드 실패: " + uploadError.message);
+            setUploadedUrl(null);
+            return;
+        }
+
+        const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(data.path);
+        setUploadedUrl(urlData.publicUrl);
+    };
 
     async function handleSubmit(formData: FormData) {
         if (date) {
@@ -42,6 +72,7 @@ export function EventCreateForm({ groupId }: EventCreateFormProps) {
             const m = minute || "00";
             formData.set("event_date", `${format(date, "yyyy-MM-dd")}T${h}:${m}:00`);
         }
+        if (uploadedUrl) formData.set("image_url", uploadedUrl);
 
         setError("");
 
@@ -55,6 +86,36 @@ export function EventCreateForm({ groupId }: EventCreateFormProps) {
 
     return (
         <form action={handleSubmit} className="space-y-5">
+            {/* 이벤트 이미지 (선택) */}
+            <div className="space-y-2">
+                <Label>이미지 (선택)</Label>
+                <div
+                    className="border-muted-foreground/30 bg-muted/30 hover:border-muted-foreground/60 flex h-32 w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border-2 border-dashed"
+                    onClick={() => fileInputRef.current?.click()}
+                >
+                    {previewUrl ? (
+                        <Image
+                            src={previewUrl}
+                            alt="이벤트 이미지 미리보기"
+                            width={400}
+                            height={128}
+                            className="h-full w-full object-cover"
+                        />
+                    ) : (
+                        <span className="text-muted-foreground text-sm">클릭하여 이미지 선택</span>
+                    )}
+                </div>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                    disabled={isPending}
+                />
+                {imageError && <p className="text-destructive text-sm">{imageError}</p>}
+            </div>
+
             {/* 이벤트 제목 (필수) */}
             <div className="space-y-2">
                 <Label htmlFor="title">

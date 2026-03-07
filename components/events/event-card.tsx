@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { CalendarDays, MapPin, Users } from "lucide-react";
@@ -36,7 +37,19 @@ export function EventCard({ event, groupId }: EventCardProps) {
 
     return (
         <Link href={`/protected/groups/${groupId}/events/${event.id}`} className="block">
-            <Card className="hover:bg-accent transition-colors">
+            <Card className="hover:bg-accent overflow-hidden transition-colors">
+                {/* 이미지 영역 */}
+                <div className="h-28 w-full overflow-hidden bg-gradient-to-br from-sky-100 to-blue-100 dark:from-sky-900/30 dark:to-blue-900/30">
+                    {event.image_url ? (
+                        <Image
+                            src={event.image_url}
+                            alt={event.title}
+                            width={400}
+                            height={112}
+                            className="h-full w-full object-cover"
+                        />
+                    ) : null}
+                </div>
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between gap-2">
                         <CardTitle className="text-base">{event.title}</CardTitle>

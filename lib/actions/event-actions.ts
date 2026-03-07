@@ -44,6 +44,7 @@ export async function createEvent(groupId: string, formData: FormData) {
     const maxParticipantsRaw = (formData.get("max_participants") as string)?.trim();
     const maxParticipants =
         maxParticipantsRaw && maxParticipantsRaw !== "" ? parseInt(maxParticipantsRaw, 10) : null;
+    const imageUrl = (formData.get("image_url") as string)?.trim() || null;
 
     const { data: event, error } = await supabase
         .from("events")
@@ -54,6 +55,7 @@ export async function createEvent(groupId: string, formData: FormData) {
             location,
             event_date: eventDate,
             max_participants: maxParticipants,
+            image_url: imageUrl,
             status: "open",
             created_by: user.id,
         })

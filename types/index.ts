@@ -37,6 +37,7 @@ export interface Event {
     event_date: string | null;
     max_participants: number | null;
     status: "draft" | "open" | "closed" | "cancelled";
+    image_url: string | null;
     created_by: string;
     created_at: string;
 }
