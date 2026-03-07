@@ -12,13 +12,13 @@ export function EventList({ events, groupId, emptyMessage }: EventListProps) {
     if (events.length === 0) {
         return (
             <div className="rounded-lg border border-dashed p-6 text-center">
-                <p className="text-sm text-muted-foreground">{emptyMessage}</p>
+                <p className="text-muted-foreground text-sm">{emptyMessage}</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-3">
             {events.map((event) => (
                 <EventCard key={event.id} event={event} groupId={groupId} />
             ))}

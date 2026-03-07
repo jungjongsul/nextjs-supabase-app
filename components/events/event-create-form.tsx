@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { CalendarIcon, Clock } from "lucide-react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -94,11 +93,10 @@ export function EventCreateForm({ groupId }: EventCreateFormProps) {
                     onClick={() => fileInputRef.current?.click()}
                 >
                     {previewUrl ? (
-                        <Image
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
                             src={previewUrl}
                             alt="이벤트 이미지 미리보기"
-                            width={400}
-                            height={128}
                             className="h-full w-full object-cover"
                         />
                     ) : (

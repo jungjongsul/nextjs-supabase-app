@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -65,11 +64,10 @@ export function GroupCreateForm() {
                     onClick={() => fileInputRef.current?.click()}
                 >
                     {previewUrl ? (
-                        <Image
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
                             src={previewUrl}
                             alt="그룹 이미지 미리보기"
-                            width={400}
-                            height={128}
                             className="h-full w-full object-cover"
                         />
                     ) : (

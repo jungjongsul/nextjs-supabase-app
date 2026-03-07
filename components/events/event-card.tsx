@@ -39,7 +39,7 @@ export function EventCard({ event, groupId }: EventCardProps) {
         <Link href={`/protected/groups/${groupId}/events/${event.id}`} className="block">
             <Card className="hover:bg-accent overflow-hidden transition-colors">
                 {/* 이미지 영역 */}
-                <div className="h-28 w-full overflow-hidden bg-gradient-to-br from-sky-100 to-blue-100 dark:from-sky-900/30 dark:to-blue-900/30">
+                <div className="aspect-square w-full overflow-hidden bg-gradient-to-br from-sky-100 to-blue-100 dark:from-sky-900/30 dark:to-blue-900/30">
                     {event.image_url ? (
                         <Image
                             src={event.image_url}

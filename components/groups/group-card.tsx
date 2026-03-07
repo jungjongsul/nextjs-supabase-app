@@ -22,7 +22,7 @@ export function GroupCard({ group, userRole, memberCount }: GroupCardProps) {
         <Link href={`/protected/groups/${group.id}`} className="block">
             <Card className="hover:bg-accent overflow-hidden transition-colors">
                 {/* 이미지 영역 */}
-                <div className="h-28 w-full overflow-hidden bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30">
+                <div className="aspect-square w-full overflow-hidden bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30">
                     {group.image_url ? (
                         <Image
                             src={group.image_url}

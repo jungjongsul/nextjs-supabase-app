@@ -28,7 +28,7 @@ async function GroupList() {
     }
 
     return (
-        <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-3">
             {groups.map((group) => (
                 <GroupCard
                     key={group.id}
@@ -43,9 +43,9 @@ async function GroupList() {
 
 function GroupListSkeleton() {
     return (
-        <div className="space-y-3">
-            {[...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="h-24 w-full rounded-lg" />
+        <div className="grid grid-cols-2 gap-3">
+            {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="aspect-square w-full rounded-lg" />
             ))}
         </div>
     );

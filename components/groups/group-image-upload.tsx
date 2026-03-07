@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 import { updateGroupImage } from "@/lib/actions/group-actions";
@@ -44,7 +43,9 @@ export function GroupImageUpload({ groupId, currentImageUrl }: GroupImageUploadP
 
         if ("error" in result) {
             setMessage({ success: false, text: result.error });
+            setPreviewUrl(currentImageUrl);
         } else {
+            setPreviewUrl(urlData.publicUrl);
             setMessage({ success: true, text: "이미지가 변경되었습니다." });
         }
         setIsLoading(false);
@@ -58,11 +59,10 @@ export function GroupImageUpload({ groupId, currentImageUrl }: GroupImageUploadP
                 onClick={() => !isLoading && fileInputRef.current?.click()}
             >
                 {previewUrl ? (
-                    <Image
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
                         src={previewUrl}
                         alt="그룹 이미지"
-                        width={400}
-                        height={128}
                         className="h-full w-full object-cover"
                     />
                 ) : (

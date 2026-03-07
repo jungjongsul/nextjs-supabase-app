@@ -117,9 +117,9 @@ function EventsSkeleton() {
                 <Skeleton className="h-8 w-28" />
             </div>
             <Skeleton className="h-10 w-full rounded-xl" />
-            <div className="space-y-3">
-                <Skeleton className="h-28 w-full rounded-lg" />
-                <Skeleton className="h-28 w-full rounded-lg" />
+            <div className="grid grid-cols-2 gap-3">
+                <Skeleton className="aspect-square w-full rounded-lg" />
+                <Skeleton className="aspect-square w-full rounded-lg" />
             </div>
         </div>
     );
