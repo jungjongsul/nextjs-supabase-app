@@ -58,27 +58,36 @@ export async function updateSession(request: NextRequest) {
             return supabaseResponse;
         }
 
-        // RLS 우회하여 is_admin 확인
-        const { createAdminClient } = await import("@/lib/supabase/admin");
-        const adminClient = createAdminClient();
-        const { data: profile } = await adminClient
-            .from("profiles")
-            .select("is_admin")
-            .eq("id", userId)
-            .single();
+        // RLS 우회하여 is_admin 확인 (try/catch로 예외 시 안전하게 리다이렉트)
+        try {
+            const { createAdminClient } = await import("@/lib/supabase/admin");
+            const adminClient = createAdminClient();
+            const { data: profile } = await adminClient
+                .from("profiles")
+                .select("is_admin")
+                .eq("id", userId)
+                .single();
 
-        const isAdmin = profile?.is_admin === true;
+            const isAdmin = profile?.is_admin === true;
 
-        if (!isAdmin && !isLoginPage) {
-            const url = request.nextUrl.clone();
-            url.pathname = "/admin/login";
-            return NextResponse.redirect(url);
-        }
+            if (!isAdmin && !isLoginPage) {
+                const url = request.nextUrl.clone();
+                url.pathname = "/admin/login";
+                return NextResponse.redirect(url);
+            }
 
-        if (isAdmin && isLoginPage) {
-            const url = request.nextUrl.clone();
-            url.pathname = "/admin";
-            return NextResponse.redirect(url);
+            if (isAdmin && isLoginPage) {
+                const url = request.nextUrl.clone();
+                url.pathname = "/admin";
+                return NextResponse.redirect(url);
+            }
+        } catch {
+            // createAdminClient 실패(환경변수 누락 등) 시 로그인 페이지로 안전하게 리다이렉트
+            if (!isLoginPage) {
+                const url = request.nextUrl.clone();
+                url.pathname = "/admin/login";
+                return NextResponse.redirect(url);
+            }
         }
 
         return supabaseResponse;
