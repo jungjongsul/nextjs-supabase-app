@@ -30,6 +30,7 @@ export async function createGroup(formData: FormData) {
     if (!name) return { error: "그룹명을 입력해주세요." };
 
     const description = (formData.get("description") as string)?.trim() || null;
+    const image_url = (formData.get("image_url") as string)?.trim() || null;
 
     let groupId: string | null = null;
     let lastError: string | null = null;
@@ -42,6 +43,7 @@ export async function createGroup(formData: FormData) {
             .insert({
                 name,
                 description,
+                image_url,
                 invite_code: inviteCode,
                 created_by: user.id,
             })
@@ -345,6 +347,40 @@ export async function updateGroup(
 
     revalidatePath(`/protected/groups/${groupId}`);
     revalidatePath(`/protected/groups/${groupId}/settings`);
+    return { success: true };
+}
+
+export async function updateGroupImage(
+    groupId: string,
+    imageUrl: string,
+): Promise<{ success: true } | { error: string }> {
+    const supabase = await createClient();
+
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { error: "로그인이 필요합니다." };
+
+    const { data: currentMember } = await supabase
+        .from("group_members")
+        .select("role")
+        .eq("group_id", groupId)
+        .eq("user_id", user.id)
+        .single();
+
+    if (!currentMember || !["owner", "admin"].includes(currentMember.role)) {
+        return { error: "권한이 없습니다." };
+    }
+
+    const { error } = await supabase
+        .from("groups")
+        .update({ image_url: imageUrl, updated_at: new Date().toISOString() })
+        .eq("id", groupId);
+
+    if (error) return { error: error.message };
+
+    revalidatePath(`/protected/groups/${groupId}`);
+    revalidatePath("/protected");
     return { success: true };
 }
 

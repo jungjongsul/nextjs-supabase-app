@@ -13,6 +13,7 @@ export interface Group {
     id: string;
     name: string;
     description: string | null;
+    image_url: string | null;
     invite_code: string;
     created_by: string;
     created_at: string;

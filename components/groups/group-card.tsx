@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +20,19 @@ interface GroupCardProps {
 export function GroupCard({ group, userRole, memberCount }: GroupCardProps) {
     return (
         <Link href={`/protected/groups/${group.id}`} className="block">
-            <Card className="transition-colors hover:bg-accent">
+            <Card className="hover:bg-accent overflow-hidden transition-colors">
+                {/* 이미지 영역 */}
+                <div className="h-28 w-full overflow-hidden bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30">
+                    {group.image_url ? (
+                        <Image
+                            src={group.image_url}
+                            alt={group.name}
+                            width={400}
+                            height={112}
+                            className="h-full w-full object-cover"
+                        />
+                    ) : null}
+                </div>
                 <CardHeader className="pb-2">
                     <div className="flex items-start justify-between gap-2">
                         <CardTitle className="text-base">{group.name}</CardTitle>
@@ -30,11 +43,11 @@ export function GroupCard({ group, userRole, memberCount }: GroupCardProps) {
                 </CardHeader>
                 <CardContent>
                     {group.description && (
-                        <p className="mb-2 line-clamp-2 text-sm text-muted-foreground">
+                        <p className="text-muted-foreground mb-2 line-clamp-2 text-sm">
                             {group.description}
                         </p>
                     )}
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <div className="text-muted-foreground flex items-center gap-1 text-xs">
                         <Users size={12} />
                         <span>{memberCount}명</span>
                     </div>

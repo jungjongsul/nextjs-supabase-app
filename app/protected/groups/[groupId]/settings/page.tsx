@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { redirect, notFound } from "next/navigation";
 import { MemberList } from "@/components/groups/member-list";
+import { GroupImageUpload } from "@/components/groups/group-image-upload";
 import { DeleteGroupButton } from "@/components/groups/delete-group-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,12 +50,13 @@ async function SettingsContent({ params }: { params: Promise<{ groupId: string }
         <div className="space-y-8">
             <div>
                 <h1 className="text-lg font-bold">그룹 설정</h1>
-                <p className="mt-1 text-sm text-muted-foreground">{group.name}</p>
+                <p className="text-muted-foreground mt-1 text-sm">{group.name}</p>
             </div>
 
             {/* 그룹 정보 수정 */}
             <section className="space-y-4">
                 <h2 className="font-semibold">기본 정보</h2>
+                <GroupImageUpload groupId={groupId} currentImageUrl={group.image_url} />
                 <form
                     action={async (formData: FormData) => {
                         "use server";
@@ -106,7 +108,7 @@ async function SettingsContent({ params }: { params: Promise<{ groupId: string }
             {/* 초대 코드 재생성 */}
             <section className="space-y-3">
                 <h2 className="font-semibold">초대 코드</h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                     현재 코드: <code className="font-mono">{group.invite_code}</code>
                 </p>
                 <form
@@ -126,7 +128,7 @@ async function SettingsContent({ params }: { params: Promise<{ groupId: string }
                 <>
                     <Separator />
                     <section className="space-y-3">
-                        <h2 className="font-semibold text-destructive">위험 구역</h2>
+                        <h2 className="text-destructive font-semibold">위험 구역</h2>
                         <DeleteGroupButton groupId={groupId} groupName={group.name} />
                     </section>
                 </>
