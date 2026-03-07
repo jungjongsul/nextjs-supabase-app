@@ -15,6 +15,7 @@ export interface AdminUser {
     username: string | null;
     created_at: string;
     groupCount: number;
+    is_admin: boolean;
 }
 
 export interface AdminGroup {
@@ -62,7 +63,7 @@ export async function getAllUsers(): Promise<AdminUser[]> {
 
     const { data: profiles } = await supabase
         .from("profiles")
-        .select("id, email, username, created_at")
+        .select("id, email, username, created_at, is_admin")
         .order("created_at", { ascending: false });
 
     if (!profiles) return [];
@@ -81,11 +82,82 @@ export async function getAllUsers(): Promise<AdminUser[]> {
                 username: profile.username,
                 created_at: profile.created_at,
                 groupCount: count ?? 0,
+                is_admin: profile.is_admin ?? false,
             };
         }),
     );
 
     return usersWithGroupCount;
+}
+
+export interface AdminUserDetail {
+    id: string;
+    email: string | null;
+    username: string | null;
+    created_at: string;
+    is_admin: boolean;
+    groups: Array<{ id: string; name: string; role: string }>;
+}
+
+export async function getUserDetail(userId: string): Promise<AdminUserDetail | { error: string }> {
+    const supabase = createAdminClient();
+
+    const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, email, username, created_at, is_admin")
+        .eq("id", userId)
+        .single();
+
+    if (profileError || !profile) return { error: "사용자를 찾을 수 없습니다." };
+
+    const { data: memberships } = await supabase
+        .from("group_members")
+        .select("role, groups(id, name)")
+        .eq("user_id", userId);
+
+    const groups = (memberships ?? []).map((m) => {
+        const group = m.groups as { id: string; name: string } | null;
+        return {
+            id: group?.id ?? "",
+            name: group?.name ?? "알 수 없음",
+            role: m.role,
+        };
+    });
+
+    return {
+        id: profile.id,
+        email: profile.email,
+        username: profile.username,
+        created_at: profile.created_at,
+        is_admin: profile.is_admin ?? false,
+        groups,
+    };
+}
+
+export async function updateUserByAdmin(
+    userId: string,
+    username: string,
+): Promise<{ success: true } | { error: string }> {
+    const supabase = createAdminClient();
+
+    const { error } = await supabase
+        .from("profiles")
+        .update({ username: username.trim(), updated_at: new Date().toISOString() })
+        .eq("id", userId);
+
+    if (error) return { error: error.message };
+    return { success: true };
+}
+
+export async function deleteUserByAdmin(
+    userId: string,
+): Promise<{ success: true } | { error: string }> {
+    const supabase = createAdminClient();
+
+    const { error } = await supabase.auth.admin.deleteUser(userId);
+    if (error) return { error: error.message };
+
+    return { success: true };
 }
 
 export async function getAllGroups(): Promise<AdminGroup[]> {
