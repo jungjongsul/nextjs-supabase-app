@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { adminLogout } from "@/lib/actions/admin-auth";
 import { Button } from "@/components/ui/button";
 import { cookies } from "next/headers";
@@ -27,18 +28,18 @@ export default async function AdminMainLayout({ children }: { children: React.Re
                 <aside className="bg-muted/40 w-48 shrink-0 border-r px-3 py-4">
                     <nav className="flex flex-col gap-1 text-sm">
                         <span className="text-muted-foreground px-2 py-1 font-medium">관리</span>
-                        <a href="/admin" className="hover:bg-accent rounded px-2 py-1.5">
+                        <Link href="/admin" className="hover:bg-accent rounded px-2 py-1.5">
                             대시보드
-                        </a>
-                        <a href="/admin/users" className="hover:bg-accent rounded px-2 py-1.5">
+                        </Link>
+                        <Link href="/admin/users" className="hover:bg-accent rounded px-2 py-1.5">
                             사용자
-                        </a>
-                        <a href="/admin/groups" className="hover:bg-accent rounded px-2 py-1.5">
+                        </Link>
+                        <Link href="/admin/groups" className="hover:bg-accent rounded px-2 py-1.5">
                             그룹
-                        </a>
-                        <a href="/admin/events" className="hover:bg-accent rounded px-2 py-1.5">
+                        </Link>
+                        <Link href="/admin/events" className="hover:bg-accent rounded px-2 py-1.5">
                             이벤트
-                        </a>
+                        </Link>
                     </nav>
                 </aside>
                 <main className="flex-1 p-6">{children}</main>
