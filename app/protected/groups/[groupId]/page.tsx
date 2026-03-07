@@ -4,11 +4,13 @@ import { notFound, redirect } from "next/navigation";
 import { Plus } from "lucide-react";
 import { GroupHeader } from "@/components/groups/group-header";
 import { InviteLinkButton } from "@/components/groups/invite-link-button";
+import { MemberList } from "@/components/groups/member-list";
 import { EventTabs } from "@/components/events/event-tabs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getGroupById, getCurrentUserRole, getMembersByGroupId } from "@/lib/actions/group-actions";
 import { getGroupEvents } from "@/lib/actions/event-actions";
+import { createClient } from "@/lib/supabase/server";
 
 interface GroupPageProps {
     params: Promise<{ groupId: string }>;
@@ -16,6 +18,10 @@ interface GroupPageProps {
 
 async function GroupInfo({ params }: { params: Promise<{ groupId: string }> }) {
     const { groupId } = await params;
+
+    const supabase = await createClient();
+    const { data: claimsData } = await supabase.auth.getClaims();
+    const currentUserId = claimsData?.claims?.sub ?? "";
 
     const [groupResult, roleResult, membersResult] = await Promise.all([
         getGroupById(groupId),
@@ -36,6 +42,12 @@ async function GroupInfo({ params }: { params: Promise<{ groupId: string }> }) {
             <div className="flex items-center gap-2">
                 <InviteLinkButton inviteCode={group.invite_code} />
             </div>
+            <MemberList
+                members={members}
+                currentUserId={currentUserId}
+                currentUserRole={userRole}
+                groupId={groupId}
+            />
         </>
     );
 }

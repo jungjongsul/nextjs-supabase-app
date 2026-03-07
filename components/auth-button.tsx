@@ -10,14 +10,30 @@ export async function AuthButton() {
 
     const user = data?.claims;
 
-    return user ? (
-        <div className="flex min-w-0 items-center gap-2">
-            <span className="text-muted-foreground hidden max-w-[160px] truncate text-sm sm:block">
-                {user.email}
-            </span>
-            <LogoutButton />
-        </div>
-    ) : (
+    if (user) {
+        // profiles.username 조회
+        const { data: profile } = await supabase
+            .from("profiles")
+            .select("username")
+            .eq("id", user.sub)
+            .single();
+
+        const displayName = profile?.username ?? user.email ?? "";
+
+        return (
+            <div className="flex min-w-0 items-center gap-2">
+                <Link
+                    href="/protected/profile"
+                    className="text-muted-foreground hidden max-w-[160px] truncate text-sm hover:underline sm:block"
+                >
+                    {displayName}
+                </Link>
+                <LogoutButton />
+            </div>
+        );
+    }
+
+    return (
         <div className="flex gap-2">
             <Button asChild size="sm" variant={"outline"}>
                 <Link href="/auth/login">로그인</Link>
